@@ -48,9 +48,9 @@
     "postbuild": "rimraf dist/**/*.test.*",
     "version": "auto-changelog -p && git add CHANGELOG.md",
     "examples": "run-p example:*",
-    "example:github": "node dist/bin/restful-react.js import --github OAI:OpenAPI-Specification:master:examples/v3.0/petstore.yaml --output examples/petstoreFromGithubSpec.tsx",
-    "example:url": "node dist/bin/restful-react.js import --url https://petstore.swagger.io/v2/swagger.json --output examples/petstoreFromUrlSpec.tsx",
-    "example:file": "node dist/bin/restful-react.js import --file examples/petstore.yaml --output examples/petstoreFromFileSpec.tsx",
+    "example:github": "node dist/bin/restful-react.js import --github OAI:OpenAPI-Specification:master:examples/v3.0/petstore.yaml --output examples/api.tsx",
+    "example:url": "node dist/bin/restful-react.js import --url https://petstore.swagger.io/v2/swagger.json --output examples/api.tsx",
+    "example:file": "node dist/bin/restful-react.js import --file ./swagger.json --output examples/api.tsx",
     "example:advanced": "node dist/bin/restful-react.js import --config examples/restful-react.config.js"
   },
   "dependencies": {

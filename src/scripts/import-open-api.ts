@@ -380,7 +380,8 @@ export const generateRestfulComponent = (
           schema!,
         )}`;
       } catch (err) {
-        throw new Error(`The path params ${p} can't be found in parameters (${operation.operationId})`);
+        return `${p}: string`;
+        // throw new Error(`The path params ${p} can't be found in parameters (${operation.operationId})`);
       }
     })
     .join(";\n  ");
@@ -573,6 +574,17 @@ ${description}export const use${componentName} = (${
 
 `;
   }
+
+  console.log({
+    componentName,
+    verb,
+    route,
+    description,
+    genericsTypes,
+    paramsInPath,
+    paramsTypes,
+    operation,
+  });
 
   // Custom version
   if (customGenerator) {
@@ -842,7 +854,6 @@ const importOpenApi = async ({
   if (transformer) {
     specs = transformer(specs);
   }
-
   if (validation) {
     await validate(specs);
   }
@@ -894,6 +905,7 @@ const importOpenApi = async ({
   if (!skipReact) {
     outputHeaders += `import React from "react";
 import { ${imports.join(", ")} } from "restful-react";
+import { QueryObserverResult, useQuery, useMutation, useQueryClient } from "react-query";
 `;
   }
 

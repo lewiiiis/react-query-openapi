@@ -1,0 +1,4284 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/admin/delivery": {
+      "get": {
+        "operationId": "AdminDelivery-SearchDelivery",
+        "summary": "배송 리스트 조회",
+        "description": "배송 리스트 조회",
+        "parameters": [
+          {
+            "name": "pageSize",
+            "required": true,
+            "in": "query",
+            "description": "페이지 사이즈(한 페이지당 row 수)",
+            "schema": { "type": "number" }
+          },
+          {
+            "name": "prevPageToken",
+            "required": false,
+            "in": "query",
+            "description": "이전 페이지 토큰",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "nextPageToken",
+            "required": false,
+            "in": "query",
+            "description": "다음 페이지 토큰",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "destination",
+            "required": false,
+            "in": "query",
+            "description": "대상 서버: Delivery or Matching",
+            "schema": {
+              "default": "DELIVERY",
+              "enum": ["DELIVERY", "MATCHING"],
+              "type": "string"
+            }
+          },
+          {
+            "name": "deliveryId",
+            "required": false,
+            "in": "query",
+            "description": "배송 ID",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "serviceType",
+            "required": false,
+            "in": "query",
+            "description": "서비스 타입",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "workerId",
+            "required": false,
+            "in": "query",
+            "description": "배송원 ID",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "states",
+            "required": false,
+            "in": "query",
+            "description": "배송 상태 (콤마 구분자로 여러개 조건으로 요청 가능)",
+            "schema": {
+              "enum": [
+                "STATE_UNSPECIFIED",
+                "PENDING",
+                "REJECTED",
+                "CANCELED",
+                "ASSIGNED",
+                "DRIVE_TO_PICKUP",
+                "PICKUP_RESOURCE",
+                "DRIVE_TO_DROPOFF",
+                "DROPOFF_RESOURCE"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "createdFrom",
+            "required": false,
+            "in": "query",
+            "description": "시작 날짜: 예) 2021-06-01",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "createdTo",
+            "required": false,
+            "in": "query",
+            "description": "종료 날짜: 예) 2021-06-01",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "terminatedFrom",
+            "required": false,
+            "in": "query",
+            "description": "시작 날짜: 예) 2021-06-01",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "terminatedTo",
+            "required": false,
+            "in": "query",
+            "description": "종료 날짜: 예) 2021-06-01",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "조회 된 배송 리스트",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DeliveryPagination" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Delivery"]
+      }
+    },
+    "/admin/delivery/{deliveryId}": {
+      "get": {
+        "operationId": "AdminDelivery-GetDelivery",
+        "summary": "배송 조회",
+        "description": "배송 조회",
+        "parameters": [
+          {
+            "name": "deliveryId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "조회 된 배송",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DeliveryPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Delivery"]
+      }
+    },
+    "/admin/worker/active": {
+      "get": {
+        "operationId": "AdminWorker-GetActiveWorkers",
+        "summary": "배송 중인 워커 리스트",
+        "description": "배송 중인 워커 리스트",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "배송 중인 워커 리스트",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActiveWorkerListPayload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Worker_A"]
+      }
+    },
+    "/admin/worker": {
+      "get": {
+        "operationId": "AdminWorker-SearchWorker",
+        "summary": "워커 리스트 조회",
+        "description": "워커 리스트 조회",
+        "parameters": [
+          {
+            "name": "pageSize",
+            "required": true,
+            "in": "query",
+            "description": "페이지 사이즈(한 페이지당 row 수)",
+            "schema": { "type": "number" }
+          },
+          {
+            "name": "prevPageToken",
+            "required": false,
+            "in": "query",
+            "description": "이전 페이지 토큰",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "nextPageToken",
+            "required": false,
+            "in": "query",
+            "description": "다음 페이지 토큰",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "workerId",
+            "required": false,
+            "in": "query",
+            "description": "워커 ID",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "User ID",
+            "schema": { "type": "number" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "조회 된 배송 리스트",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkerWithSchedulePagination"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Worker_A"]
+      },
+      "post": {
+        "operationId": "AdminWorker-CreateWorker",
+        "summary": "워커 생성",
+        "description": "워커 생성 요청",
+        "deprecated": true,
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateWorkerDto" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "생성 된 워커 정보",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WorkerPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Worker_A"]
+      }
+    },
+    "/admin/worker/{workerId}": {
+      "get": {
+        "operationId": "AdminWorker-GetWorker",
+        "summary": "워커 조회",
+        "description": "워커 조회",
+        "parameters": [
+          {
+            "name": "workerId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "조회 된 워커",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkerWithSchedulePayload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Worker_A"]
+      },
+      "put": {
+        "operationId": "AdminWorker-UpdateWorker",
+        "summary": "워커 수정",
+        "description": "워커 수정 요청",
+        "parameters": [
+          {
+            "name": "workerId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateWorkerDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "수정 된 워커 정보",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WorkerPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Worker_A"]
+      },
+      "delete": {
+        "operationId": "AdminWorker-DeleteWorker",
+        "summary": "워커 삭제",
+        "description": "워커 삭제 요청",
+        "parameters": [
+          {
+            "name": "workerId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "삭제 된 워커 정보",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WorkerPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Worker_A"]
+      }
+    },
+    "/admin/worker/{workerId}/task/history": {
+      "get": {
+        "operationId": "AdminWorker-SearchTaskHistroy",
+        "summary": "픽업/배송 완료 리스트 ",
+        "description": "픽업/배송 완료 리스트",
+        "parameters": [
+          {
+            "name": "workerId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "terminatedFrom",
+            "required": true,
+            "in": "query",
+            "description": "시작 날짜: 예) 2021-06-01",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "terminatedTo",
+            "required": true,
+            "in": "query",
+            "description": "종료 날짜: 예) 2021-06-01",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "픽업/배송 완료 리스트",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TaskListPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Worker_A"]
+      }
+    },
+    "/admin/worker/{workerId}/delivery/date": {
+      "get": {
+        "operationId": "AdminWorker-SearchDeliveryHistroy",
+        "summary": "배송 완료 날짜 리스트",
+        "description": "배송 완료 날짜 리스트",
+        "parameters": [
+          {
+            "name": "workerId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "terminatedFrom",
+            "required": true,
+            "in": "query",
+            "description": "시작 날짜: 예) 2021-06-01",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "terminatedTo",
+            "required": true,
+            "in": "query",
+            "description": "종료 날짜: 예) 2021-06-01",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "배송 완료 날짜 리스트",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryDateListPayload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Worker_A"]
+      }
+    },
+    "/admin/schedule": {
+      "post": {
+        "operationId": "AdminSchedule-CreateSchedule",
+        "summary": "스케쥴 생성",
+        "description": "워커 스케쥴 생성 요청",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateScheduleDto" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "생성 된 스케쥴 정보",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SchedulePayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Schedule"]
+      },
+      "get": {
+        "operationId": "AdminSchedule-SearchSchedules",
+        "summary": "스케쥴 리스트 조회",
+        "description": "스케쥴 리스트 조회",
+        "parameters": [
+          {
+            "name": "pageSize",
+            "required": true,
+            "in": "query",
+            "description": "페이지 사이즈(한 페이지당 row 수)",
+            "schema": { "type": "number" }
+          },
+          {
+            "name": "prevPageToken",
+            "required": false,
+            "in": "query",
+            "description": "이전 페이지 토큰",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "nextPageToken",
+            "required": false,
+            "in": "query",
+            "description": "다음 페이지 토큰",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "workerIds",
+            "required": false,
+            "in": "query",
+            "description": "워커 ID 리스트",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          },
+          {
+            "name": "startTime",
+            "required": false,
+            "in": "query",
+            "description": "시작 날짜: 예) 2021-06-01",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "endTime",
+            "required": false,
+            "in": "query",
+            "description": "종료 날짜: 예) 2021-06-01",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "조회 된 스케쥴 리스트",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleWithWorkerPagination"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Schedule"]
+      }
+    },
+    "/admin/schedule/{scheduleId}": {
+      "delete": {
+        "operationId": "AdminSchedule-DeleteSchedule",
+        "summary": "스케쥴 삭제",
+        "description": "워커 스케쥴 삭제 요청",
+        "parameters": [
+          {
+            "name": "scheduleId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "삭제 된 스케쥴 정보",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SchedulePayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Schedule"]
+      }
+    },
+    "/admin/service": {
+      "post": {
+        "operationId": "AdminService-CreateService",
+        "summary": "서비스 생성",
+        "description": "서비스 생성",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateServiceDto" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "생성 된 서비스 정보",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ServicePayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Service"]
+      },
+      "get": {
+        "operationId": "AdminService-GetAllService",
+        "summary": "서비스 리스트 조회",
+        "description": "서비스 리스트 조회",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "서비스 리스트 조회",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ServiceListPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Service"]
+      }
+    },
+    "/admin/service/{type}": {
+      "put": {
+        "operationId": "AdminService-UpdateService",
+        "summary": "서비스 수정",
+        "description": "서비스 수정",
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateServiceDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "수정 된 서비스 정보",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ServicePayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Service"]
+      },
+      "get": {
+        "operationId": "AdminService-GetService",
+        "summary": "서비스 조회",
+        "description": "서비스 조회",
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "서비스 조회",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ServicePayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Service"]
+      },
+      "delete": {
+        "operationId": "AdminService-DeleteService",
+        "summary": "서비스 삭제",
+        "description": "서비스 삭제",
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "삭제 된 서비스",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ServicePayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Service"]
+      }
+    },
+    "/admin/waypoint": {
+      "get": {
+        "operationId": "AdminWaypoint-GetWaypoints",
+        "summary": "워커 픽업/배송 리스트",
+        "description": "워커 픽업/배송 리스트",
+        "parameters": [
+          {
+            "name": "workerId",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "워커 픽업/배송 리스트",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WaypointListPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Waypoint"]
+      }
+    },
+    "/admin/waypoint/unassign": {
+      "post": {
+        "operationId": "AdminWaypoint-UnassignWaypoint",
+        "summary": "픽업/배송 워커 할당 해제",
+        "description": "픽업 또는 배송 일감을 워커에게서 할당 해제",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UnassignWaypointDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "" },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Waypoint"]
+      },
+      "get": {
+        "operationId": "AdminWaypoint-UnassignedWaypoints",
+        "summary": "할당 해제 된 픽업/배송 리스트",
+        "description": "할당 해제 된 픽업/배송 리스트",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "할당 해제 된 픽업/배송 리스트",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WaypointListPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Waypoint"]
+      }
+    },
+    "/admin/waypoint/reset": {
+      "post": {
+        "operationId": "AdminWaypoint-ResetWaypoint",
+        "summary": "할당 해제 된 픽업/배송을 할당 전으로 초기화",
+        "description": "할당 해제 된 픽업/배송을 할당 전으로 초기화",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ResetWaypointDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "" },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Waypoint"]
+      }
+    },
+    "/admin/waypoint/reject": {
+      "post": {
+        "operationId": "AdminWaypoint-RejectWaypoint",
+        "summary": "픽업/배송 거절",
+        "description": "픽업/배송 거절",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RejectWaypointDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "" },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Waypoint"]
+      }
+    },
+    "/admin/audit/delivery/{deliveryId}": {
+      "get": {
+        "operationId": "AdminAudit-GetDeliveryAudit",
+        "summary": "Delivery Audit 조회",
+        "description": "Delivery Audit 조회",
+        "deprecated": true,
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Delivery Audit 조회",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuditPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Audit"]
+      }
+    },
+    "/admin/audit/schedule/{scheduleId}": {
+      "get": {
+        "operationId": "AdminAudit-GetScheduleAudit",
+        "summary": "Schedule Audit 조회",
+        "description": "Schedule Audit 조회",
+        "parameters": [
+          {
+            "name": "scheduleId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Schedule Audit 조회",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuditPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Audit"]
+      }
+    },
+    "/admin/audit/waypoint/{taskId}": {
+      "get": {
+        "operationId": "AdminAudit-GetWaypointAudit",
+        "summary": "Waypoint Audit 조회",
+        "description": "Waypoint Audit 조회",
+        "parameters": [
+          {
+            "name": "taskId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Waypoint Audit 조회",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuditPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Audit"]
+      }
+    },
+    "/admin/audit/worker/{workerId}": {
+      "get": {
+        "operationId": "AdminAudit-GetWorkerAudit",
+        "summary": "Worker Audit 조회",
+        "description": "Worker Audit 조회",
+        "parameters": [
+          {
+            "name": "workerId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Worker Audit 조회",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuditPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Audit"]
+      }
+    },
+    "/admin/offer": {
+      "get": {
+        "operationId": "AdminOffer-GetOffers",
+        "summary": "배송 묶음 리스트",
+        "description": "배송 묶음 리스트",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "조회 된 배송 묶음 리스트",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/OfferListPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Offer"]
+      }
+    },
+    "/admin/offer/{offerId}": {
+      "put": {
+        "operationId": "AdminOffer-UpdateOffer",
+        "summary": "배송 묶음 수정",
+        "description": "배송 묶음 수정",
+        "parameters": [
+          {
+            "name": "offerId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateOfferDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "수정 된 배송 묶음 정보",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/OfferPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Offer"]
+      },
+      "delete": {
+        "operationId": "AdminOffer-DeleteOffer",
+        "summary": "배송 묶음 삭제",
+        "description": "배송 묶음 삭제",
+        "parameters": [
+          {
+            "name": "offerId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "" },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Offer"]
+      }
+    },
+    "/admin/offer/{offerId}/push": {
+      "post": {
+        "operationId": "AdminOffer-PushOffer",
+        "summary": "배송 묶음 알림 푸시",
+        "description": "배송 묶음 알림 푸시",
+        "parameters": [
+          {
+            "name": "offerId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "" },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Offer"]
+      }
+    },
+    "/admin/offer/{offerId}/accept": {
+      "post": {
+        "operationId": "AdminOffer-AcceptOffer",
+        "summary": "배송 묶음 수락",
+        "description": "배송 묶음 수락",
+        "parameters": [
+          {
+            "name": "offerId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AcceptOfferDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "" },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Offer"]
+      }
+    },
+    "/admin/offer/{offerId}/reject": {
+      "post": {
+        "operationId": "AdminOffer-RejectOffer",
+        "summary": "배송 묶음 거절",
+        "description": "배송 묶음 거절",
+        "parameters": [
+          {
+            "name": "offerId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "" },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Offer"]
+      }
+    },
+    "/admin/offer/{offerId}/add": {
+      "post": {
+        "operationId": "AdminOffer-AddOfferDetail",
+        "summary": "배송 묶음을 제안 받는 배송원 추가",
+        "description": "배송 묶음을 제안 받는 배송원 추가",
+        "parameters": [
+          {
+            "name": "offerId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AddOfferDetailDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "" },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Offer"]
+      }
+    },
+    "/admin/offer/make": {
+      "post": {
+        "operationId": "AdminOffer-MakeOffer",
+        "summary": "배송 묶음 생성",
+        "description": "배송 묶음 생성",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/MakeOfferDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "" },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Offer"]
+      }
+    },
+    "/admin/settlement": {
+      "post": {
+        "operationId": "AdminSettlement-CreateSettlement",
+        "summary": "정산 생성",
+        "description": "정산 생성",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateSettlementDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "정산 데이터",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SettlementPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Settlement"]
+      },
+      "get": {
+        "operationId": "AdminSettlement-SearchSettlements",
+        "summary": "정산 리스트 조회",
+        "description": "정산 리스트 조회",
+        "parameters": [
+          {
+            "name": "pageSize",
+            "required": true,
+            "in": "query",
+            "description": "페이지 사이즈(한 페이지당 row 수)",
+            "schema": { "type": "number" }
+          },
+          {
+            "name": "prevPageToken",
+            "required": false,
+            "in": "query",
+            "description": "이전 페이지 토큰",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "nextPageToken",
+            "required": false,
+            "in": "query",
+            "description": "다음 페이지 토큰",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "workerId",
+            "required": false,
+            "in": "query",
+            "description": "배송원 ID",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "description": "시작 날짜: 예) 2021-06-01",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "description": "종료 날짜: 예) 2021-06-01",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "정산 리스트",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettlementWithWorkerPagination"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Settlement"]
+      }
+    },
+    "/admin/settlement/{settlementId}": {
+      "delete": {
+        "operationId": "AdminSettlement-DeleteSettlement",
+        "summary": "정산 삭제",
+        "description": "정산 삭제",
+        "parameters": [
+          {
+            "name": "settlementId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "" },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Settlement"]
+      }
+    },
+    "/admin/settlement/summary": {
+      "get": {
+        "operationId": "AdminSettlement-SearchSettlementSummarys",
+        "summary": "정산 합계 리스트 조회",
+        "description": "정산 합계 리스트 조회",
+        "parameters": [
+          {
+            "name": "pageSize",
+            "required": true,
+            "in": "query",
+            "description": "페이지 사이즈(한 페이지당 row 수)",
+            "schema": { "type": "number" }
+          },
+          {
+            "name": "prevPageToken",
+            "required": false,
+            "in": "query",
+            "description": "이전 페이지 토큰",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "nextPageToken",
+            "required": false,
+            "in": "query",
+            "description": "다음 페이지 토큰",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "description": "시작 날짜: 예) 2021-06-01",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "description": "종료 날짜: 예) 2021-06-01",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "정산 합계 리스트",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettlementSummaryWithWokerPagination"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Settlement"]
+      }
+    },
+    "/admin/settlement/summary/download": {
+      "get": {
+        "operationId": "AdminSettlement-DownloadSettlementSummarys",
+        "summary": "정산 합계 csv 다운로드",
+        "description": "정산 합계 csv 다운로드",
+        "parameters": [
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "description": "시작 날짜: 예) 2021-06-01",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "description": "종료 날짜: 예) 2021-06-01",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "" },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Settlement"]
+      }
+    },
+    "/admin/agreement/upload/url": {
+      "get": {
+        "operationId": "AdminAgreement-GetUploadUrl",
+        "summary": "약관 파일 업로드 url",
+        "description": "약관 파일 업로드 url",
+        "parameters": [
+          {
+            "name": "filename",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "업로드 정보",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UploadUrlPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Agreement"]
+      }
+    },
+    "/admin/agreement": {
+      "post": {
+        "operationId": "AdminAgreement-CreateAgreement",
+        "summary": "약관 생성",
+        "description": "약관 생성",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateAgreementDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "생성된 약관",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AgreementPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "412": {
+            "description": "존재하지 않는 파일명",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Agreement"]
+      },
+      "get": {
+        "operationId": "AdminAgreement-SearchAgreement",
+        "summary": "약관 리스트 조회",
+        "description": "약관 리스트 조회",
+        "parameters": [
+          {
+            "name": "workerId",
+            "required": false,
+            "in": "query",
+            "description": "배송원 ID",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "조회된 약관 리스트",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgreementListPayload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Agreement"]
+      }
+    },
+    "/admin/agreement/{agreementId}": {
+      "put": {
+        "operationId": "AdminAgreement-UpdateAgreement",
+        "summary": "약관 수정",
+        "description": "약관 수정",
+        "parameters": [
+          {
+            "name": "agreementId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateAgreementDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "수정된 약관",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AgreementPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "412": {
+            "description": "존재하지 않는 파일명",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Agreement"]
+      },
+      "get": {
+        "operationId": "AdminAgreement-GetAgreement",
+        "summary": "약관 조회",
+        "description": "약관 조회",
+        "parameters": [
+          {
+            "name": "agreementId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "조회된 약관",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AgreementPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Agreement"]
+      }
+    },
+    "/admin/dev/delivery/bundle": {
+      "post": {
+        "operationId": "AdminDev-CreateDeliveryBundle",
+        "summary": "합배송 카드 생성",
+        "description": "합배송 카드 생성",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDeliveryBundleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "합배송 카드 생성" },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Dev"]
+      }
+    },
+    "/admin/dev/delivery/ondemand": {
+      "post": {
+        "operationId": "AdminDev-CreateDeliveryOndemand",
+        "summary": "온디맨드 카드 생성",
+        "description": "온디맨드 카드 생성",
+        "parameters": [],
+        "responses": {
+          "200": { "description": "온디맨드 카드 생성" },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Dev"]
+      }
+    },
+    "/admin/dev/push/send": {
+      "post": {
+        "operationId": "AdminDev-SendPush",
+        "summary": "앱 푸시 테스트",
+        "description": "앱 푸시 테스트",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AppPushDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "앱 푸시 테스트" },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Dev"]
+      }
+    },
+    "/api/v1/auth/identity/verification/start": {
+      "post": {
+        "operationId": "Identity-StartIdentityVerification",
+        "summary": "본인 인증 part(1)",
+        "description": "본인 인증 part(1)",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartIdentityVerificationReqDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "본인 인증 part(2)의 input으로 들어가는 정보",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartIdentityVerificationResDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Identity"]
+      }
+    },
+    "/api/v1/auth/identity/verification/verify": {
+      "post": {
+        "operationId": "Identity-VerifyIdentity",
+        "summary": "본인 인증 part(2)",
+        "description": "본인 인증 요청 part(2)",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/VerifyIdentityReqDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "인증 토큰",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyIdentityResDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Identity"]
+      }
+    },
+    "/api/v1/auth/token/access": {
+      "post": {
+        "operationId": "Token-GetAccessToken",
+        "summary": "access 토큰 요청",
+        "description": "access 토큰 요청",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RefreshTokenDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "access 토큰",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessRefreshTokenPayload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Token"]
+      }
+    },
+    "/api/v1/worker/cs": {
+      "get": {
+        "operationId": "CS-Cs",
+        "summary": "Open CS Channel",
+        "description": "Open CS Channel",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "cs 채팅 채널 스킴",
+            "content": {
+              "application/json": { "schema": { "type": "string" } }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["CS"]
+      }
+    },
+    "/api/v1/worker/sign/in": {
+      "post": {
+        "operationId": "Sign-SignIn",
+        "summary": "Sign In",
+        "description": "Sign In 요청",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SignInDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "토큰",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessRefreshTokenPayload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "404": {
+            "description": "존재하지 않는 유저",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Sign"]
+      }
+    },
+    "/api/v1/worker/sign/up": {
+      "post": {
+        "operationId": "Sign-SignUp",
+        "summary": "Sign Up",
+        "description": "Sign Up 요청",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SignUpDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "토큰",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessRefreshTokenPayload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "잘못된 이메일 인증 번호",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "409": {
+            "description": "중복된 이메일",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Sign"]
+      }
+    },
+    "/api/v1/worker/email/verify/code": {
+      "post": {
+        "operationId": "Email-SendVerifyCode",
+        "summary": "Email 인증 번호 발송",
+        "description": "Email 인증 번호 발송",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SendVerifyCodeDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "인증 번호 발송 완료" },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Email"]
+      }
+    },
+    "/api/v1/worker/agreement": {
+      "get": {
+        "operationId": "Agreement-GetAgreements",
+        "summary": "약관 리스트 조회",
+        "description": "약관 리스트 조회",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "조회된 약관 리스트",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgreementListPayload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Agreement(Only Sign Up)"]
+      }
+    },
+    "/api/v1/worker/image/upload": {
+      "post": {
+        "operationId": "Image-ImageUpload",
+        "summary": "이미지 업로드 Signed Url",
+        "description": "이미지 업로드 Signed Url",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ImageUploadDto" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "인증 번호 발송 완료",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ImageUploadPayload" }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          },
+          "401": {
+            "description": "인증되지 않은 요청",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorType" }
+              }
+            }
+          }
+        },
+        "tags": ["Image"]
+      }
+    },
+    "/api/v1/juso/address": {
+      "get": {
+        "operationId": "Juso-SearchAddress",
+        "summary": "주소 검색 from Juso",
+        "description": "검색 된 주소 리스트",
+        "parameters": [
+          {
+            "name": "query",
+            "required": true,
+            "in": "query",
+            "description": "주소 검색 문자열",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "페이지 넘버",
+            "schema": { "type": "number" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "검색 된 주소 리스트",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/InternalJusoPayload" }
+              }
+            }
+          }
+        },
+        "tags": ["Address"]
+      }
+    },
+    "/api/v1/kakao/address": {
+      "get": {
+        "operationId": "Kakao-SearchAddress",
+        "summary": "주소 검색 from Kakao",
+        "description": "검색 된 주소 리스트",
+        "parameters": [
+          {
+            "name": "query",
+            "required": true,
+            "in": "query",
+            "description": "주소 검색 문자열",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "페이지 넘버",
+            "schema": { "type": "number" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "검색 된 주소 리스트",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/KakaoAddressPayload" }
+              }
+            }
+          }
+        },
+        "tags": ["Address"]
+      }
+    },
+    "/api/v1/bank": {
+      "get": {
+        "operationId": "Bank-GetBankList",
+        "summary": "은행 리스트",
+        "description": "은행 리스트",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "은행 리스트",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BankListPayload" }
+              }
+            }
+          }
+        },
+        "tags": ["Bank"]
+      }
+    }
+  },
+  "info": {
+    "title": "Chinchilla GateWay API For Platform",
+    "description": "",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "WebSocket",
+      "description": "\n            \n## Connection\n            \n- example\n            {\n                import { io } from \"https://cdn.socket.io/4.3.2/socket.io.esm.min.js\";\n                const socket = io('http://localhost:8000/socket/worker', {\n                    transports: ['websocket'],\n                    auth: { token: 'access token' }\n                });\n\n                socket.on('connect_error', (err) => console.log(err));\n                socket.on('connect', () => {\n                    if (socket.connected) socket.emit('join');\n                });\n            }\n            \n## Worker State (Client Push)\n            \n- example\n            {\n                const data: {\n                    latitude: number, // 위도\n                    longitude: number // 경도\n                };\n                // volatile를 사용하는 이유는 배송원의 상태 정보는 빈번하게 서버로 전송하기 때문에\n                // 중간에 유실되어도 크게 문제 없기 때문이예요.\n                socket.volatile.emit('state', data, (res) => console.log(res));\n            }\n            \n## Offer (Server Push)\n            \n- example\n            {\n                const data: {\n                    command: 'CREATE' | 'UPDATE' | 'DELETE'\n                    offerId: string\n                }\n                // offerId로 offer 정보를 api를 통해 다시 요청해야 해요.\n                // offer 전체를 전달하지 않는 이유는 소켓으로는 최소한의 필수적인 데이터만 주고 받으려고 하기 때문이예요.\n                socket.on('offer', (data) => console.log(data));\n            }\n            "
+    }
+  ],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "ResourceCapacity": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "물품 메타 정보 태그",
+            "enum": ["SHOPPINGBAG", "BOX", "KG", "MONEY"]
+          },
+          "value": { "type": "number", "description": "물품 메타 정보 값" }
+        },
+        "required": ["type", "value"]
+      },
+      "ResourceEntity": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "배송 물품 ID" },
+          "name": { "type": "string", "description": "배송 물품 이름" },
+          "trackingCode": { "type": "string", "description": "배송 코드" },
+          "capacity": {
+            "description": "배송 물품 타입, 수량, 무게",
+            "default": null,
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ResourceCapacity" }
+          },
+          "resourceUrl": { "type": "string", "description": "배송 물품 링크" }
+        },
+        "required": ["id", "name"]
+      },
+      "LocationMetaData": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "주소 메타 정보 타입",
+            "enum": ["USER_NAME", "PASSWORD", "MESSAGE", "USER_PHONE"]
+          },
+          "value": { "type": "string", "description": "주소 메타 정보 값" }
+        },
+        "required": ["type", "value"]
+      },
+      "LocationEntity": {
+        "type": "object",
+        "properties": {
+          "address": { "type": "string", "description": "지번 주소" },
+          "roadAddress": { "type": "string", "description": "도로명 주소" },
+          "detail": { "type": "string", "description": "주소 상세" },
+          "latitude": { "type": "number", "description": "위도" },
+          "longitude": { "type": "number", "description": "경도" },
+          "metadata": {
+            "description": "주소 기타 정보",
+            "default": null,
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/LocationMetaData" }
+          }
+        },
+        "required": ["address", "roadAddress", "latitude", "longitude"]
+      },
+      "ImageEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "big picture ID",
+            "default": null
+          },
+          "url": {
+            "type": "string",
+            "description": "이미지 url",
+            "default": null
+          },
+          "thumbnail": {
+            "type": "string",
+            "description": "썸네일 url",
+            "default": null
+          },
+          "medium": {
+            "type": "string",
+            "description": "미디엄 사이즈 url",
+            "default": null
+          }
+        }
+      },
+      "TaskEntity": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "배송 일감 ID" },
+          "deliveryId": { "type": "string", "description": "배송 ID" },
+          "type": {
+            "type": "string",
+            "description": "일감 타입: PICKUP, DROPOFF",
+            "enum": ["TYPE_UNSPECIFIED", "PICKUP", "DROPOFF"]
+          },
+          "location": {
+            "description": "주소 정보",
+            "allOf": [{ "$ref": "#/components/schemas/LocationEntity" }]
+          },
+          "image": {
+            "description": "배송 이미지 정보",
+            "default": null,
+            "allOf": [{ "$ref": "#/components/schemas/ImageEntity" }]
+          },
+          "eta": {
+            "type": "string",
+            "description": "예상 시간: ISO format 예) 2021-10-01T12:12:12.000Z"
+          },
+          "completedAt": {
+            "type": "string",
+            "description": "완료 시간: ISO format 예) 2021-10-01T12:12:12.000Z"
+          }
+        },
+        "required": ["id", "deliveryId", "type", "location"]
+      },
+      "RejectEntity": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "배송 거절 사유",
+            "enum": [
+              "MATCHING_FAILED",
+              "WORKER_UNAVAILABLE",
+              "RESOURCE_NOT_FOUND",
+              "RESOURCE_NOT_ALLOWED",
+              "LOCATION_UNREACHABLE"
+            ]
+          },
+          "images": {
+            "description": "배송 거절 근거 이미지",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ImageEntity" }
+          }
+        }
+      },
+      "DeliveryEntity": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "배송 ID" },
+          "serviceType": {
+            "type": "string",
+            "description": "배송 요청 서비스 타입"
+          },
+          "serviceName": {
+            "type": "string",
+            "description": "배송 요청 서비스 이름"
+          },
+          "fleetType": {
+            "type": "string",
+            "description": "배송 타입: BUNDLE=합배송, ONDEMAND=바로 배송",
+            "enum": ["BUNDLE", "ONDEMAND"]
+          },
+          "state": {
+            "type": "string",
+            "description": "배송 상태: PENDING=배송원 매칭 전, FAILED=배송원 매칭 실패, CANCELED=배송 취소, ,ASSIGNED: 배송원 매칭, DRIVE_TO_PICKUP=픽업 하러 가는 중, PICKUP_RESOURCE=픽업 완료, DRIVE_TO_DROPOFF= 배송 하러 가는중, DROPOFF_RESOURCE=배송 완료",
+            "enum": [
+              "PENDING",
+              "REJECTED",
+              "CANCELED",
+              "ASSIGNED",
+              "DRIVE_TO_PICKUP",
+              "PICKUP_RESOURCE",
+              "DRIVE_TO_DROPOFF",
+              "DROPOFF_RESOURCE"
+            ]
+          },
+          "fee": { "type": "number", "description": "배송료" },
+          "resource": {
+            "description": "배송 물품 정보",
+            "allOf": [{ "$ref": "#/components/schemas/ResourceEntity" }]
+          },
+          "workerId": {
+            "type": "string",
+            "description": "배송원 ID",
+            "default": null
+          },
+          "terminatedAt": {
+            "type": "string",
+            "description": "배송 취소 OR 매칭 실패 OR 완료 시간: ISO format 예) 2021-10-01T12:12:12.000Z"
+          },
+          "pickup": {
+            "description": "보내는 곳 정보",
+            "allOf": [{ "$ref": "#/components/schemas/TaskEntity" }]
+          },
+          "dropoff": {
+            "description": "받는 곳 정보",
+            "allOf": [{ "$ref": "#/components/schemas/TaskEntity" }]
+          },
+          "reject": {
+            "description": "배송 거절 정보",
+            "allOf": [{ "$ref": "#/components/schemas/RejectEntity" }]
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "배송 생성 날짜: ISO format 예) 2021-10-01T12:12:12.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "serviceType",
+          "serviceName",
+          "fleetType",
+          "state",
+          "fee",
+          "resource",
+          "workerId",
+          "terminatedAt",
+          "pickup",
+          "dropoff",
+          "createdAt"
+        ]
+      },
+      "DeliveryPagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "description": "배송 리스트",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/DeliveryEntity" }
+          },
+          "prevPageToken": {
+            "type": "string",
+            "description": "이전 페이지 토큰"
+          },
+          "nextPageToken": {
+            "type": "string",
+            "description": "다음 페이지 토큰"
+          }
+        },
+        "required": ["page"]
+      },
+      "ErrorType": {
+        "type": "object",
+        "properties": {
+          "statusCode": { "type": "number", "description": "http status code" },
+          "error": { "type": "string", "description": "error code" },
+          "message": { "type": "string", "description": "error message" }
+        },
+        "required": ["statusCode"]
+      },
+      "DeliveryPayload": {
+        "type": "object",
+        "properties": {
+          "delivery": {
+            "description": "배송 정보",
+            "allOf": [{ "$ref": "#/components/schemas/DeliveryEntity" }]
+          }
+        }
+      },
+      "WorkerEntity": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "워커 ID" },
+          "name": { "type": "string", "description": "워커 이름(닉네임)" },
+          "phone": { "type": "string", "description": "워커 연락처" },
+          "email": { "type": "string", "description": "이메일" },
+          "userId": { "type": "number", "description": "호이안 유저 ID" }
+        },
+        "required": ["id", "name", "phone", "email"]
+      },
+      "CourierEntity": {
+        "type": "object",
+        "properties": {
+          "worker": {
+            "description": "워커 정보",
+            "allOf": [{ "$ref": "#/components/schemas/WorkerEntity" }]
+          },
+          "assignedDeliveries": {
+            "type": "number",
+            "description": "할당 된 배송 건 수",
+            "deprecated": true
+          },
+          "assignedTasks": {
+            "type": "number",
+            "description": "할당 된 배송 건 수",
+            "deprecated": true
+          }
+        },
+        "required": ["worker", "assignedDeliveries", "assignedTasks"]
+      },
+      "ActiveWorkerPayload": {
+        "type": "object",
+        "properties": {
+          "total": { "type": "number", "description": "총 배송 건 수" },
+          "active": { "type": "number", "description": "활성 상태 배송 건 수" },
+          "complete": {
+            "type": "number",
+            "description": "완료 상태 배송 건 수"
+          },
+          "unassign": {
+            "type": "number",
+            "description": "미할당 상태 배송 건 수"
+          },
+          "worker": {
+            "description": "워커 정보",
+            "allOf": [{ "$ref": "#/components/schemas/WorkerEntity" }]
+          }
+        },
+        "required": ["worker"]
+      },
+      "ActiveWorkerListPayload": {
+        "type": "object",
+        "properties": {
+          "couriers": {
+            "description": "워커 정보 리스트",
+            "deprecated": true,
+            "allOf": [{ "$ref": "#/components/schemas/CourierEntity" }]
+          },
+          "workers": {
+            "description": "워커 정보 리스트",
+            "allOf": [{ "$ref": "#/components/schemas/ActiveWorkerPayload" }]
+          }
+        },
+        "required": ["couriers", "workers"]
+      },
+      "DepotEntity": {
+        "type": "object",
+        "properties": {
+          "address": { "type": "string", "description": "지번 주소" },
+          "roadAddress": { "type": "string", "description": "도로명 주소" },
+          "detail": { "type": "string", "description": "상세 주소" },
+          "latitude": { "type": "number", "description": "위도" },
+          "longitude": { "type": "number", "description": "경도" }
+        },
+        "required": [
+          "address",
+          "roadAddress",
+          "detail",
+          "latitude",
+          "longitude"
+        ]
+      },
+      "AddressEntity": {
+        "type": "object",
+        "properties": {
+          "address": { "type": "string", "description": "지번 주소" },
+          "roadAddress": { "type": "string", "description": "도로명 주소" },
+          "detail": { "type": "string", "description": "상세 주소" },
+          "latitude": { "type": "number", "description": "위도" },
+          "longitude": { "type": "number", "description": "경도" }
+        },
+        "required": ["address", "roadAddress"]
+      },
+      "BankEntity": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "description": "은행 이름" },
+          "code": { "type": "string", "description": "은행 코드" }
+        },
+        "required": ["code"]
+      },
+      "BankAccountEntity": {
+        "type": "object",
+        "properties": {
+          "bank": {
+            "description": "은행 정보",
+            "allOf": [{ "$ref": "#/components/schemas/BankEntity" }]
+          },
+          "accountNumber": { "type": "string", "description": "계좌 번호" }
+        },
+        "required": ["bank", "accountNumber"]
+      },
+      "ScheduleEntity": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "워커 스케쥴 ID" },
+          "workerId": { "type": "string", "description": "워커 ID" },
+          "startAt": {
+            "type": "string",
+            "description": "스케쥴 시작 시간: ISO format 예) 2021-10-01T12:12:12.000Z"
+          }
+        },
+        "required": ["id", "workerId", "startAt"]
+      },
+      "WorkerWithSchedule": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "ID" },
+          "name": { "type": "string", "description": "이름" },
+          "phone": { "type": "string", "description": "연락처" },
+          "email": { "type": "string", "description": "이메일" },
+          "userId": { "type": "number", "description": "호이안 유저 ID" },
+          "rrn": { "type": "string", "description": "주민등록번호" },
+          "depot": {
+            "description": "워커 주소",
+            "deprecated": true,
+            "allOf": [{ "$ref": "#/components/schemas/DepotEntity" }]
+          },
+          "address": {
+            "description": "워커 주소",
+            "allOf": [{ "$ref": "#/components/schemas/AddressEntity" }]
+          },
+          "bankAccount": {
+            "description": "정산 계좌 정보",
+            "allOf": [{ "$ref": "#/components/schemas/BankAccountEntity" }]
+          },
+          "schedules": {
+            "description": "스케쥴",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ScheduleEntity" }
+          }
+        },
+        "required": ["id", "name", "phone", "email"]
+      },
+      "WorkerWithSchedulePagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "description": "워커 리스트",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/WorkerWithSchedule" }
+          },
+          "prevPageToken": {
+            "type": "string",
+            "description": "이전 페이지 토큰",
+            "default": ""
+          },
+          "nextPageToken": {
+            "type": "string",
+            "description": "다음 페이지 토큰",
+            "default": ""
+          }
+        },
+        "required": ["page"]
+      },
+      "WorkerWithSchedulePayload": {
+        "type": "object",
+        "properties": {
+          "worker": {
+            "description": "워커 정보",
+            "allOf": [{ "$ref": "#/components/schemas/WorkerWithSchedule" }]
+          }
+        }
+      },
+      "CreateWorkerDto": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "description": "이메일" },
+          "userId": { "type": "number", "description": "호이안 유저 ID" },
+          "rrn": { "type": "string", "description": "주민등록번호" },
+          "depot": {
+            "description": "워커 주소",
+            "deprecated": true,
+            "allOf": [{ "$ref": "#/components/schemas/DepotEntity" }]
+          },
+          "address": {
+            "description": "워커 주소",
+            "allOf": [{ "$ref": "#/components/schemas/AddressEntity" }]
+          },
+          "bankAccount": {
+            "description": "정산 계좌 정보",
+            "allOf": [{ "$ref": "#/components/schemas/BankAccountEntity" }]
+          }
+        },
+        "required": ["email"]
+      },
+      "FullWorkerEntity": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "ID" },
+          "name": { "type": "string", "description": "이름" },
+          "phone": { "type": "string", "description": "연락처" },
+          "email": { "type": "string", "description": "이메일" },
+          "userId": { "type": "number", "description": "호이안 유저 ID" },
+          "rrn": { "type": "string", "description": "주민등록번호" },
+          "depot": {
+            "description": "워커 주소",
+            "deprecated": true,
+            "allOf": [{ "$ref": "#/components/schemas/DepotEntity" }]
+          },
+          "address": {
+            "description": "워커 주소",
+            "allOf": [{ "$ref": "#/components/schemas/AddressEntity" }]
+          },
+          "bankAccount": {
+            "description": "정산 계좌 정보",
+            "allOf": [{ "$ref": "#/components/schemas/BankAccountEntity" }]
+          }
+        },
+        "required": ["id", "name", "phone", "email"]
+      },
+      "WorkerPayload": {
+        "type": "object",
+        "properties": {
+          "worker": {
+            "description": "워커 정보",
+            "allOf": [{ "$ref": "#/components/schemas/FullWorkerEntity" }]
+          }
+        }
+      },
+      "UpdateWorkerDto": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "description": "이메일" },
+          "rrn": { "type": "string", "description": "주민등록번호" },
+          "depot": {
+            "description": "워커 주소",
+            "deprecated": true,
+            "allOf": [{ "$ref": "#/components/schemas/DepotEntity" }]
+          },
+          "address": {
+            "description": "워커 주소",
+            "allOf": [{ "$ref": "#/components/schemas/AddressEntity" }]
+          },
+          "bankAccount": {
+            "description": "정산 계좌 정보",
+            "allOf": [{ "$ref": "#/components/schemas/BankAccountEntity" }]
+          }
+        }
+      },
+      "TaskListPayload": {
+        "type": "object",
+        "properties": {
+          "tasks": {
+            "description": "픽업/배송 정보 리스트",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/TaskEntity" }
+          }
+        },
+        "required": ["tasks"]
+      },
+      "DeliveryDateListPayload": {
+        "type": "object",
+        "properties": {
+          "dates": {
+            "description": "배송 완료 날짜 리스트: ISO format 예) 2021-10-01T12:12:12.000Z",
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["dates"]
+      },
+      "CreateScheduleDto": {
+        "type": "object",
+        "properties": {
+          "workerId": { "type": "string", "description": "워커 ID" },
+          "date": {
+            "type": "string",
+            "description": "일 할 날짜: ISO format 예) 2021-10-01T12:12:12.000Z"
+          }
+        },
+        "required": ["workerId", "date"]
+      },
+      "SchedulePayload": {
+        "type": "object",
+        "properties": {
+          "schedule": {
+            "description": "스케쥴 정보",
+            "allOf": [{ "$ref": "#/components/schemas/ScheduleEntity" }]
+          }
+        },
+        "required": ["schedule"]
+      },
+      "ScheduleWithWorker": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "워커 스케쥴 ID" },
+          "workerId": { "type": "string", "description": "워커 ID" },
+          "startAt": {
+            "type": "string",
+            "description": "스케쥴 시작 시간: ISO format 예) 2021-10-01T12:12:12.000Z"
+          },
+          "worker": {
+            "description": "워커 정보",
+            "allOf": [{ "$ref": "#/components/schemas/FullWorkerEntity" }]
+          }
+        },
+        "required": ["id", "workerId", "startAt"]
+      },
+      "ScheduleWithWorkerPagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "description": "스케쥴 리스트",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ScheduleWithWorker" }
+          },
+          "prevPageToken": {
+            "type": "string",
+            "description": "이전 페이지 토큰"
+          },
+          "nextPageToken": {
+            "type": "string",
+            "description": "다음 페이지 토큰"
+          }
+        },
+        "required": ["page"]
+      },
+      "CreateServiceDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "서비스 타입: 영어 대문자, _ 문자만 허용"
+          },
+          "name": {
+            "type": "string",
+            "description": "서비스 이름: 워커 배송 화면에 보이는 배송 일감의 서비스 이름"
+          },
+          "callbackUrl": {
+            "type": "string",
+            "description": "배송 상태 변경 발생 시, 변경된 데이터 수신 callback url"
+          },
+          "resourceUrl": {
+            "type": "string",
+            "description": "배송 물품에 대한 상세 정보 조회를 위해 서비스 어드민으로 이동 할 수 있는 resource url"
+          }
+        },
+        "required": ["type", "name", "callbackUrl", "resourceUrl"]
+      },
+      "ServiceEntity": {
+        "type": "object",
+        "properties": {
+          "token": { "type": "string", "description": "인증 토큰" },
+          "type": {
+            "type": "string",
+            "description": "서비스 타입: 영어 대문자, _ 문자만 허용"
+          },
+          "name": {
+            "type": "string",
+            "description": "서비스 이름: 워커 배송 화면에 보이는 배송 일감의 서비스 이름"
+          },
+          "callbackUrl": {
+            "type": "string",
+            "description": "배송 상태 변경 발생 시, 변경된 데이터 수신 callback url"
+          },
+          "resourceUrl": {
+            "type": "string",
+            "description": "배송 물품에 대한 상세 정보 조회를 위해 서비스 어드민으로 이동 할 수 있는 resource url"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "생성 날짜 및 시간: ISO format 예) 2021-10-01T12:12:12.000Z"
+          }
+        },
+        "required": [
+          "token",
+          "type",
+          "name",
+          "callbackUrl",
+          "resourceUrl",
+          "createdAt"
+        ]
+      },
+      "ServicePayload": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "description": "서비스 정보",
+            "allOf": [{ "$ref": "#/components/schemas/ServiceEntity" }]
+          }
+        }
+      },
+      "UpdateServiceDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "서비스 이름: 워커 배송 화면에 보이는 배송 일감의 서비스 이름"
+          },
+          "callbackUrl": {
+            "type": "string",
+            "description": "배송 상태 변경 발생 시, 변경된 데이터 수신 callback url"
+          },
+          "resourceUrl": {
+            "type": "string",
+            "description": "배송 물품에 대한 상세 정보 조회를 위해 서비스 어드민으로 이동 할 수 있는 resource url"
+          }
+        },
+        "required": ["name", "callbackUrl", "resourceUrl"]
+      },
+      "ServiceListPayload": {
+        "type": "object",
+        "properties": {
+          "services": {
+            "description": "서비스 정보 리스트",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ServiceEntity" }
+          }
+        },
+        "required": ["services"]
+      },
+      "PriceEntity": {
+        "type": "object",
+        "properties": {
+          "deliveryFee": {
+            "type": "number",
+            "description": "일감 기본 가격 정보"
+          }
+        },
+        "required": ["deliveryFee"]
+      },
+      "UnassignEntity": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "미할당으로 전환하는 사유",
+            "enum": [
+              "WORKER_UNAVAILABLE",
+              "RESOURCE_NOT_FOUND",
+              "RESOURCE_NOT_ALLOWED",
+              "INVALID_GATE_PASSWD",
+              "WRONG_ADDRESS"
+            ]
+          },
+          "images": {
+            "description": "배송 거절 근거 이미지",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ImageEntity" }
+          }
+        }
+      },
+      "WaypointEntity": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "description": "일감 상태",
+            "enum": ["ACTIVE", "COMPLETED", "UNASSIGNED"]
+          },
+          "workerId": { "type": "string", "description": "워커 ID" },
+          "startAt": {
+            "type": "string",
+            "description": "시작 시간: ISO format 예) 2021-10-01T12:12:12.000Z"
+          },
+          "task": {
+            "description": "픽업/배송 일감",
+            "allOf": [{ "$ref": "#/components/schemas/TaskEntity" }]
+          },
+          "resource": {
+            "description": "배송 물품 정보",
+            "allOf": [{ "$ref": "#/components/schemas/ResourceEntity" }]
+          },
+          "price": {
+            "description": "일감 가격 정보",
+            "allOf": [{ "$ref": "#/components/schemas/PriceEntity" }]
+          },
+          "unassign": {
+            "description": "미할당 전환 정보",
+            "allOf": [{ "$ref": "#/components/schemas/UnassignEntity" }]
+          }
+        },
+        "required": ["state", "workerId", "startAt", "task", "resource"]
+      },
+      "WaypointListPayload": {
+        "type": "object",
+        "properties": {
+          "waypoints": {
+            "description": "일감(픽업/배송) 정보 리스트",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/WaypointEntity" }
+          }
+        },
+        "required": ["waypoints"]
+      },
+      "UnassignWaypointDto": {
+        "type": "object",
+        "properties": {
+          "workerId": { "type": "string", "description": "워커 ID" },
+          "deliveryIds": {
+            "description": "배송 ID list",
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "reason": {
+            "type": "string",
+            "description": "미할당으로 전환하는 사유",
+            "enum": [
+              "WORKER_UNAVAILABLE",
+              "RESOURCE_NOT_FOUND",
+              "RESOURCE_NOT_ALLOWED",
+              "INVALID_GATE_PASSWD",
+              "WRONG_ADDRESS"
+            ]
+          }
+        },
+        "required": ["workerId", "deliveryIds", "reason"]
+      },
+      "ResetWaypointDto": {
+        "type": "object",
+        "properties": {
+          "deliveryIds": {
+            "description": "배송 ID 리스트",
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["deliveryIds"]
+      },
+      "RejectWaypointDto": {
+        "type": "object",
+        "properties": {
+          "deliveryIds": {
+            "description": "배송 ID list",
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "amount": {
+            "type": "number",
+            "description": "배송 불가와 함께 미할당 요청 한 배송원에게 정산 할 금액"
+          },
+          "memo": { "type": "string", "description": "정산 금액에 대한 메모" }
+        },
+        "required": ["deliveryIds"]
+      },
+      "Actor": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "actor id" },
+          "type": {
+            "type": "string",
+            "description": "actor type",
+            "enum": ["ADMIN", "WORKER"]
+          },
+          "name": { "type": "string", "description": "actor name" }
+        },
+        "required": ["id", "type", "name"]
+      },
+      "ChangeLog": {
+        "type": "object",
+        "properties": {
+          "field": { "type": "string", "description": "변경 필드명" },
+          "before": { "type": "string", "description": "변경 전 값" },
+          "after": { "type": "string", "description": "변경 후 값" }
+        },
+        "required": ["field", "before", "after"]
+      },
+      "Response": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "변경 종류",
+            "enum": [
+              "create",
+              "update",
+              "delete",
+              "assign",
+              "unassign",
+              "complete",
+              "reject"
+            ]
+          },
+          "actor": {
+            "description": "변경 주체 정보",
+            "allOf": [{ "$ref": "#/components/schemas/Actor" }]
+          },
+          "changelogsList": {
+            "description": "변경 이력",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ChangeLog" }
+          },
+          "createdAt": { "type": "string", "description": "변경 시각" }
+        },
+        "required": ["action", "actor", "changelogsList", "createdAt"]
+      },
+      "AuditPayload": {
+        "type": "object",
+        "properties": {
+          "auditLogs": {
+            "description": "audit log 리스트",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Response" }
+          }
+        },
+        "required": ["auditLogs"]
+      },
+      "OfferStepEntity": {
+        "type": "object",
+        "properties": {
+          "max": { "type": "number", "description": "최대 확장 횟수" },
+          "current": {
+            "type": "number",
+            "description": "현재까지 누적 확장 한 횟수"
+          },
+          "totalWorkers": {
+            "type": "number",
+            "description": "총 발송 대상 워커 수"
+          },
+          "receivedWorkers": {
+            "type": "number",
+            "description": "현재까지 누적 발송 한 워커 수"
+          }
+        },
+        "required": ["max", "current", "totalWorkers", "receivedWorkers"]
+      },
+      "OfferDetailEntity": {
+        "type": "object",
+        "properties": {
+          "worker": {
+            "description": "배송원 정보",
+            "allOf": [{ "$ref": "#/components/schemas/WorkerEntity" }]
+          },
+          "distance": {
+            "type": "number",
+            "description": "offer로부터 배송원의 거리(m)",
+            "deprecated": true
+          },
+          "distanceToFirstTask": {
+            "type": "number",
+            "description": "배송원의 현재 위치에서 첫번째 일감까지의 거리(m)"
+          },
+          "distanceToLastTask": {
+            "type": "number",
+            "description": "배송원의 현재 위치에서 마지막 일감까지의 거리(m)"
+          },
+          "distanceOfTasks": {
+            "type": "number",
+            "description": "일감들의 총 거리(m)",
+            "deprecated": true
+          },
+          "deliveryFee": {
+            "type": "number",
+            "description": "배송원에게 제시된 기본 배송비"
+          },
+          "incentive": {
+            "type": "number",
+            "description": "배송원에게 제시된 인센티브"
+          }
+        },
+        "required": [
+          "distance",
+          "distanceToFirstTask",
+          "distanceToLastTask",
+          "deliveryFee",
+          "incentive"
+        ]
+      },
+      "OfferEntity": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "offer ID" },
+          "tasks": {
+            "description": "task 정보",
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "distanceOfTasks": {
+            "type": "number",
+            "description": "일감들의 총 거리(m)"
+          },
+          "step": {
+            "description": "카드 발송 상태",
+            "allOf": [{ "$ref": "#/components/schemas/OfferStepEntity" }]
+          },
+          "details": {
+            "description": "카드를 받은 워커들의 워커별 카드 상세 정보",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/OfferDetailEntity" }
+          }
+        },
+        "required": ["id", "tasks", "distanceOfTasks"]
+      },
+      "OfferListPayload": {
+        "type": "object",
+        "properties": {
+          "offers": {
+            "description": "Offer 리스트",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/OfferEntity" }
+          }
+        },
+        "required": ["offers"]
+      },
+      "UpdateOfferDto": {
+        "type": "object",
+        "properties": {
+          "incentive": { "type": "number", "description": "incentive" }
+        },
+        "required": ["incentive"]
+      },
+      "OfferPayload": {
+        "type": "object",
+        "properties": {
+          "offer": {
+            "description": "Offer",
+            "allOf": [{ "$ref": "#/components/schemas/OfferEntity" }]
+          }
+        },
+        "required": ["offer"]
+      },
+      "AcceptOfferDto": {
+        "type": "object",
+        "properties": {
+          "workerId": { "type": "string", "description": "수락 하는 배송원 ID" }
+        },
+        "required": ["workerId"]
+      },
+      "AddOfferDetailDto": {
+        "type": "object",
+        "properties": {
+          "workerId": { "type": "string", "description": "배송원 ID" },
+          "deliveryFee": {
+            "type": "number",
+            "description": "배송원에게 제시 될 기본 배송비"
+          },
+          "incentive": {
+            "type": "number",
+            "description": "배송원에게 제시 될 인센티브"
+          }
+        },
+        "required": ["workerId", "deliveryFee", "incentive"]
+      },
+      "MakeOfferDto": {
+        "type": "object",
+        "properties": {
+          "max": { "type": "number", "description": "offer의 최대 배송 갯수" },
+          "min": { "type": "number", "description": "offer의 최소 배송 갯수" }
+        },
+        "required": ["max"]
+      },
+      "CreateSettlementDto": {
+        "type": "object",
+        "properties": {
+          "referenceType": {
+            "type": "string",
+            "description": "사유 타입",
+            "enum": [
+              "SETTLEMENT",
+              "DELIVERY_COMPLETED",
+              "OPERATOR",
+              "INCENTIVE",
+              "DELIVERY_REJECTED"
+            ]
+          },
+          "referenceId": { "type": "string", "description": "사유 ID" },
+          "amount": { "type": "number", "description": "금액" },
+          "memo": { "type": "string", "description": "정산 메모" },
+          "createdAt": {
+            "type": "string",
+            "description": "정산 날짜: 예) 2021-06-01"
+          }
+        },
+        "required": ["referenceType", "amount"]
+      },
+      "SettlementEntity": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "정산 ID" },
+          "referenceType": {
+            "type": "string",
+            "description": "사유 타입",
+            "enum": [
+              "SETTLEMENT",
+              "DELIVERY_COMPLETED",
+              "OPERATOR",
+              "INCENTIVE",
+              "DELIVERY_REJECTED"
+            ]
+          },
+          "referenceId": { "type": "string", "description": "사유 ID" },
+          "amount": { "type": "number", "description": "금액" },
+          "memo": { "type": "string", "description": "정산 메모" },
+          "createdAt": { "type": "string", "description": "생성일" },
+          "children": {
+            "description": "연관된 정산 내역",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SettlementEntity" }
+          }
+        },
+        "required": ["id", "referenceType", "amount", "createdAt"]
+      },
+      "SettlementWithWorker": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "정산 ID" },
+          "referenceType": {
+            "type": "string",
+            "description": "사유 타입",
+            "enum": [
+              "SETTLEMENT",
+              "DELIVERY_COMPLETED",
+              "OPERATOR",
+              "INCENTIVE",
+              "DELIVERY_REJECTED"
+            ]
+          },
+          "referenceId": { "type": "string", "description": "사유 ID" },
+          "amount": { "type": "number", "description": "금액" },
+          "memo": { "type": "string", "description": "정산 메모" },
+          "createdAt": { "type": "string", "description": "생성일" },
+          "children": {
+            "description": "연관된 정산 내역",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SettlementEntity" }
+          },
+          "worker": {
+            "description": "배송원 정보",
+            "allOf": [{ "$ref": "#/components/schemas/FullWorkerEntity" }]
+          }
+        },
+        "required": ["id", "referenceType", "amount", "createdAt"]
+      },
+      "SettlementPayload": {
+        "type": "object",
+        "properties": {
+          "settlement": {
+            "description": "정산 정보",
+            "allOf": [{ "$ref": "#/components/schemas/SettlementWithWorker" }]
+          }
+        },
+        "required": ["settlement"]
+      },
+      "SettlementWithWorkerPagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "description": "워커 리스트",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SettlementWithWorker" }
+          },
+          "prevPageToken": {
+            "type": "string",
+            "description": "이전 페이지 토큰"
+          },
+          "nextPageToken": {
+            "type": "string",
+            "description": "다음 페이지 토큰"
+          }
+        },
+        "required": ["page"]
+      },
+      "SettlementSummaryWithWoker": {
+        "type": "object",
+        "properties": {
+          "totalAmount": { "type": "number", "description": "총 정산 금액" },
+          "worker": {
+            "description": "배송원 정보",
+            "allOf": [{ "$ref": "#/components/schemas/FullWorkerEntity" }]
+          }
+        },
+        "required": ["totalAmount", "worker"]
+      },
+      "SettlementSummaryWithWokerPagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "description": "워커 리스트",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SettlementSummaryWithWoker"
+            }
+          },
+          "prevPageToken": {
+            "type": "string",
+            "description": "이전 페이지 토큰"
+          },
+          "nextPageToken": {
+            "type": "string",
+            "description": "다음 페이지 토큰"
+          }
+        },
+        "required": ["page"]
+      },
+      "UploadUrlPayload": {
+        "type": "object",
+        "properties": {
+          "filename": { "type": "string", "description": "업로드 파일명" },
+          "url": { "type": "string", "description": "aws s3 signed upload url" }
+        },
+        "required": ["filename", "url"]
+      },
+      "CreateAgreementDto": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "ID" },
+          "title": { "type": "string", "description": "타이틀" },
+          "required": { "type": "boolean", "description": "필수 약관 여부" },
+          "initial": {
+            "type": "boolean",
+            "description": "약관 효력 발생 일 이전 미노출 여부"
+          },
+          "order": { "type": "number", "description": "약관 표시 순서" },
+          "startAt": {
+            "type": "string",
+            "description": "약관 효력 발생 날짜: 예) 2021-06-01"
+          },
+          "filename": { "type": "string", "description": "업로드 파일명" }
+        },
+        "required": ["id", "title", "required", "initial", "order", "startAt"]
+      },
+      "AgreementEntity": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "ID" },
+          "title": { "type": "string", "description": "타이틀" },
+          "url": { "type": "string", "description": "약관 링크" },
+          "required": { "type": "boolean", "description": "필수 약관 여부" },
+          "initial": {
+            "type": "boolean",
+            "description": "약관 효력 발생 일 이전 미노출 여부"
+          },
+          "startAt": {
+            "type": "string",
+            "description": "약관 효력 발생 날짜: ISO format 예) 2021-11-22T00:00:00.000Z"
+          },
+          "order": { "type": "number", "description": "약관 표시 순서" },
+          "agreedAt": {
+            "type": "string",
+            "description": "동의 완료 날짜: ISO format 예) 2021-11-22T00:00:00.000Z "
+          }
+        },
+        "required": ["id", "title", "required", "initial", "startAt", "order"]
+      },
+      "AgreementPayload": {
+        "type": "object",
+        "properties": {
+          "agreement": {
+            "description": "약관 정보",
+            "allOf": [{ "$ref": "#/components/schemas/AgreementEntity" }]
+          }
+        },
+        "required": ["agreement"]
+      },
+      "UpdateAgreementDto": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string", "description": "타이틀" },
+          "required": { "type": "boolean", "description": "필수 약관 여부" },
+          "initial": {
+            "type": "boolean",
+            "description": "약관 효력 발생 일 이전 미노출 여부"
+          },
+          "order": { "type": "number", "description": "약관 표시 순서" },
+          "startAt": {
+            "type": "string",
+            "description": "약관 효력 발생 날짜: 예) 2021-06-01"
+          },
+          "filename": { "type": "string", "description": "업로드 파일명" }
+        }
+      },
+      "AgreementListPayload": {
+        "type": "object",
+        "properties": {
+          "agreements": {
+            "description": "약관 리스트",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/AgreementEntity" }
+          }
+        },
+        "required": ["agreements"]
+      },
+      "CreateDeliveryBundleDto": {
+        "type": "object",
+        "properties": {
+          "total": { "type": "number", "description": "총 배송 건 수" },
+          "max": {
+            "type": "number",
+            "description": "개별 카드의 최대 배송 건 수"
+          }
+        },
+        "required": ["total", "max"]
+      },
+      "AppPushDto": {
+        "type": "object",
+        "properties": {
+          "workerId": { "type": "string", "description": "배송원 아이디" },
+          "title": { "type": "string", "description": "title" },
+          "body": { "type": "string", "description": "body" }
+        },
+        "required": ["workerId", "title", "body"]
+      },
+      "StartIdentityVerificationReqDto": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "description": "본명" },
+          "birthday": {
+            "type": "string",
+            "description": "생년월일(YYYYMMDD) 예시: 19910101"
+          },
+          "gender": {
+            "type": "string",
+            "description": "성별",
+            "enum": ["MALE", "FEMALE", "GENDER_UNKNOWN"]
+          },
+          "foreigner": { "type": "boolean", "description": "외국인 여부" },
+          "telecom": {
+            "type": "string",
+            "description": "통신사: 앞에 A가 붙은 값은 알뜰 통신사",
+            "enum": [
+              "SKT",
+              "KT",
+              "LGU",
+              "A_SKT",
+              "A_KT",
+              "A_LGU",
+              "TELECOM_UNKNOWN"
+            ]
+          },
+          "telephoneNumber": {
+            "type": "string",
+            "description": "휴대폰 번호 (하이픈 없이 숫자만)"
+          },
+          "resend": {
+            "type": "boolean",
+            "description": "재시도의 경우 true, 그 이외의 경우 false"
+          },
+          "transactionSeqNo": {
+            "type": "string",
+            "description": "resend 값이 true 일 때, 필수"
+          },
+          "agree1": { "type": "boolean", "description": "약관 1 동의 여부" },
+          "agree2": { "type": "boolean", "description": "약관 2 동의 여부" },
+          "agree3": { "type": "boolean", "description": "약관 3 동의 여부" },
+          "agree4": { "type": "boolean", "description": "약관 4 동의 여부" }
+        },
+        "required": [
+          "name",
+          "birthday",
+          "gender",
+          "foreigner",
+          "telecom",
+          "telephoneNumber",
+          "resend",
+          "agree1",
+          "agree2",
+          "agree3",
+          "agree4"
+        ]
+      },
+      "StartIdentityVerificationResDto": {
+        "type": "object",
+        "properties": {
+          "transactionSeqNo": {
+            "type": "string",
+            "description": "트랜잭션 No"
+          },
+          "identificationMethod": {
+            "type": "string",
+            "description": "본인 인증에 사용한 인증 방식",
+            "enum": ["PASS_APP", "SMS"]
+          }
+        },
+        "required": ["transactionSeqNo", "identificationMethod"]
+      },
+      "VerifyIdentityReqDto": {
+        "type": "object",
+        "properties": {
+          "identificationMethod": {
+            "type": "string",
+            "description": "본인 인증에 사용한 인증 방식",
+            "enum": ["PASS_APP", "SMS"]
+          },
+          "transactionSeqNo": {
+            "type": "string",
+            "description": "트랜잭션 No"
+          },
+          "otp": { "type": "string", "description": "문자 인증 번호" },
+          "telephoneNumber": {
+            "type": "string",
+            "description": "휴대폰 번호 (하이픈 없이 숫자만)"
+          }
+        },
+        "required": [
+          "identificationMethod",
+          "transactionSeqNo",
+          "otp",
+          "telephoneNumber"
+        ]
+      },
+      "VerifyIdentityResDto": {
+        "type": "object",
+        "properties": {
+          "transactionSeqNo": { "type": "string", "description": "트랜잭션 No" }
+        },
+        "required": ["transactionSeqNo"]
+      },
+      "RefreshTokenDto": {
+        "type": "object",
+        "properties": {
+          "refresh": { "type": "string", "description": "refresh token" }
+        },
+        "required": ["refresh"]
+      },
+      "AccessRefreshTokenPayload": {
+        "type": "object",
+        "properties": {
+          "refresh": { "type": "string", "description": "refresh token" },
+          "access": { "type": "string", "description": "access token" }
+        },
+        "required": ["refresh", "access"]
+      },
+      "SignInDto": {
+        "type": "object",
+        "properties": {
+          "transactionSeqNo": {
+            "type": "string",
+            "description": "본인인증 트랜잭션 No"
+          }
+        },
+        "required": ["transactionSeqNo"]
+      },
+      "SignUpDto": {
+        "type": "object",
+        "properties": {
+          "transactionSeqNo": {
+            "type": "string",
+            "description": "본인인증 트랜잭션 No"
+          },
+          "email": { "type": "string", "description": "이메일" },
+          "emailVerifyCode": {
+            "type": "string",
+            "description": "이메일 인증 코드"
+          }
+        },
+        "required": ["transactionSeqNo", "email"]
+      },
+      "SendVerifyCodeDto": {
+        "type": "object",
+        "properties": {
+          "transactionSeqNo": {
+            "type": "string",
+            "description": "본인인증 트랜잭션 No"
+          },
+          "email": { "type": "string", "description": "이메일" }
+        },
+        "required": ["transactionSeqNo", "email"]
+      },
+      "ImageUploadDto": {
+        "type": "object",
+        "properties": {
+          "width": { "type": "number", "description": "이미지 가로 크기" },
+          "height": { "type": "number", "description": "이미지 세로 크기" },
+          "contentType": {
+            "type": "string",
+            "description": "이미지 Content-Type (MIME: image/***)"
+          }
+        },
+        "required": ["width", "height", "contentType"]
+      },
+      "ImageUploadPayload": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "big-picture id" },
+          "url": { "type": "string", "description": "signed upload url" }
+        },
+        "required": ["id", "url"]
+      },
+      "InternalJusoObject": {
+        "type": "object",
+        "properties": {
+          "zipNo": { "type": "string", "description": "우편 번호" },
+          "regionAddress": { "type": "string", "description": "지번 주소" },
+          "roadAddress": { "type": "string", "description": "도로명 주소" }
+        },
+        "required": ["zipNo", "regionAddress", "roadAddress"]
+      },
+      "InternalJusoPageInfo": {
+        "type": "object",
+        "properties": {
+          "totalCount": { "type": "number" },
+          "countPerPage": { "type": "number" },
+          "currentPage": { "type": "number" }
+        },
+        "required": ["totalCount", "countPerPage", "currentPage"]
+      },
+      "InternalJusoPayload": {
+        "type": "object",
+        "properties": {
+          "addresses": {
+            "description": "주소 리스트",
+            "default": null,
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/InternalJusoObject" }
+          },
+          "pageInfo": {
+            "description": "주소 페이지네이션 정보",
+            "default": null,
+            "allOf": [{ "$ref": "#/components/schemas/InternalJusoPageInfo" }]
+          }
+        },
+        "required": ["addresses", "pageInfo"]
+      },
+      "ExternalKakaoAddress": {
+        "type": "object",
+        "properties": {
+          "addressName": { "type": "string" },
+          "bCode": { "type": "string" },
+          "hCode": { "type": "string" },
+          "mainAddressNo": { "type": "string" },
+          "mountainYn": { "type": "string" },
+          "region1DepthName": { "type": "string" },
+          "region2DepthName": { "type": "string" },
+          "region3DepthHName": { "type": "string" },
+          "region3DepthName": { "type": "string" },
+          "subAddressNo": { "type": "string" },
+          "x": { "type": "string" },
+          "y": { "type": "string" }
+        }
+      },
+      "ExternalKakaoRoadAddress": {
+        "type": "object",
+        "properties": {
+          "addressName": { "type": "string" },
+          "buildingName": { "type": "string" },
+          "mainBuildingNo": { "type": "string" },
+          "region1DepthName": { "type": "string" },
+          "region2DepthName": { "type": "string" },
+          "region3DepthName": { "type": "string" },
+          "roadName": { "type": "string" },
+          "subBuildingNo": { "type": "string" },
+          "undergroundYn": { "type": "string" },
+          "x": { "type": "string" },
+          "y": { "type": "string" },
+          "zoneNo": { "type": "string" }
+        }
+      },
+      "KakaoAddress": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "description": "지번 주소 정보",
+            "allOf": [{ "$ref": "#/components/schemas/ExternalKakaoAddress" }]
+          },
+          "roadAddress": {
+            "description": "도로명 주소 정보",
+            "allOf": [
+              { "$ref": "#/components/schemas/ExternalKakaoRoadAddress" }
+            ]
+          }
+        },
+        "required": ["address", "roadAddress"]
+      },
+      "ExternalKakaoAddressMetaData": {
+        "type": "object",
+        "properties": {
+          "isEnd": { "type": "boolean" },
+          "pageableCount": { "type": "number" },
+          "totalCount": { "type": "number" }
+        },
+        "required": ["isEnd", "pageableCount", "totalCount"]
+      },
+      "KakaoAddressPayload": {
+        "type": "object",
+        "properties": {
+          "addresses": {
+            "description": "주소 리스트",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/KakaoAddress" }
+          },
+          "pageInfo": {
+            "description": "주소 페이지네이션 정보",
+            "allOf": [
+              { "$ref": "#/components/schemas/ExternalKakaoAddressMetaData" }
+            ]
+          }
+        },
+        "required": ["addresses", "pageInfo"]
+      },
+      "BankListPayload": {
+        "type": "object",
+        "properties": {
+          "banks": {
+            "description": "은행 리스트",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/BankEntity" }
+          }
+        },
+        "required": ["banks"]
+      }
+    }
+  },
+  "x-tagGroups": [
+    {
+      "name": "admin apis",
+      "tags": [
+        "Service",
+        "Delivery",
+        "Worker_A",
+        "Schedule",
+        "Offer",
+        "Waypoint",
+        "Settlement",
+        "Agreement",
+        "Audit",
+        "Dev"
+      ]
+    },
+    { "name": "authentication apis", "tags": ["Identity", "Token"] },
+    {
+      "name": "worker apis",
+      "tags": [
+        "Worker",
+        "Sign",
+        "Agreement(Only Sign Up)",
+        "Email",
+        "WebSocket",
+        "CS",
+        "Image"
+      ]
+    },
+    { "name": "external apis", "tags": ["Address", "Bank"] }
+  ]
+}

@@ -92,6 +92,8 @@ const importSpecs = async (options: AdvancedOptions) => {
     const { ext } = parse(options.file);
     const format = [".yaml", ".yml"].includes(ext.toLowerCase()) ? "yaml" : "json";
 
+    console.log({ format });
+
     return importOpenApi({
       data,
       format,
