@@ -432,18 +432,18 @@ export const generateRestfulComponent = (
             : requestBodyTypes
         }, ${paramsInPath.length ? componentName + "PathParams" : "void"}`;
 
-  const genericsTypesForHooksProps =
-    verb === "get"
-      ? `${responseType}, ${errorTypes}, ${queryParamsType ? componentName + "QueryParams" : "void"}, ${
-          paramsInPath.length ? componentName + "PathParams" : "void"
-        }`
-      : `${responseType}, ${errorTypes}, ${queryParamsType ? componentName + "QueryParams" : "void"}, ${
-          verb === "delete" && lastParamInTheRoute
-            ? lastParamInTheRouteType
-            : needARequestBodyComponent
-            ? componentName + "RequestBody"
-            : requestBodyTypes
-        }, ${paramsInPath.length ? componentName + "PathParams" : "void"}`;
+  // const genericsTypesForHooksProps =
+  //   verb === "get"
+  //     ? `${responseType}, ${errorTypes}, ${queryParamsType ? componentName + "QueryParams" : "void"}, ${
+  //         paramsInPath.length ? componentName + "PathParams" : "void"
+  //       }`
+  //     : `${responseType}, ${errorTypes}, ${queryParamsType ? componentName + "QueryParams" : "void"}, ${
+  //         verb === "delete" && lastParamInTheRoute
+  //           ? lastParamInTheRouteType
+  //           : needARequestBodyComponent
+  //           ? componentName + "RequestBody"
+  //           : requestBodyTypes
+  //       }, ${paramsInPath.length ? componentName + "PathParams" : "void"}`;
 
   const customPropsEntries = Object.entries(customProps).map(([key, prop]) => {
     if (typeof prop === "function") {
@@ -546,33 +546,47 @@ export const Poll${componentName} = (${
     }
 
     // Hooks version
-    output += `export type Use${componentName}Props = Omit<Use${Component}Props<${genericsTypesForHooksProps}>, "path"${
-      verb === "get" ? "" : ` | "verb"`
-    }>${paramsInPath.length ? ` & ${componentName}PathParams` : ""};
+    //     output += `export type Use${componentName}Props = Omit<Use${Component}Props<${genericsTypesForHooksProps}>, "path"${
+    //       verb === "get" ? "" : ` | "verb"`
+    //     }>${paramsInPath.length ? ` & ${componentName}PathParams` : ""};
+
+    // ${description}export const use${componentName} = (${
+    //       paramsInPath.length ? `{${paramsInPath.join(", ")}, ...props}` : "props"
+    //     }: Use${componentName}Props) => use${Component}<${genericsTypes}>(${
+    //       verb === "get" ? "" : `"${verb.toUpperCase()}", `
+    //     }${
+    //       paramsInPath.length
+    //         ? `(paramsInPath: ${componentName}PathParams) => ${encode}\`${route.replace(/\$\{/g, "${paramsInPath.")}\``
+    //         : `${encode}\`${route}\``
+    //     }, ${
+    //       customPropsEntries.length || paramsInPath.length || verb === "delete"
+    //         ? `{ ${
+    //             customPropsEntries.length
+    //               ? `${customPropsEntries
+    //                   .map(([key, value]) => `${key}:${reactPropsValueToObjectValue(value || "")}`)
+    //                   .join(", ")},`
+    //               : ""
+    //           }${verb === "delete" && pathParametersEncodingMode ? "pathInlineBodyEncode: encodingFn, " : " "}${
+    //             paramsInPath.length ? `pathParams: { ${paramsInPath.join(", ")} },` : ""
+    //           } ...props }`
+    //         : "props"
+    //     });
+
+    // `;
+
+    const path = paramsInPath.length ? `${encode}\`${route.replace(/\$\{/g, "${")}\`` : `${encode}\`${route}\``;
+
+    // Custom Hooks
+    output += `export interface Use${componentName}Props extends QueryOptions {${paramsTypes}} ;
 
 ${description}export const use${componentName} = (${
-      paramsInPath.length ? `{${paramsInPath.join(", ")}, ...props}` : "props"
-    }: Use${componentName}Props) => use${Component}<${genericsTypes}>(${
-      verb === "get" ? "" : `"${verb.toUpperCase()}", `
-    }${
-      paramsInPath.length
-        ? `(paramsInPath: ${componentName}PathParams) => ${encode}\`${route.replace(/\$\{/g, "${paramsInPath.")}\``
-        : `${encode}\`${route}\``
-    }, ${
-      customPropsEntries.length || paramsInPath.length || verb === "delete"
-        ? `{ ${
-            customPropsEntries.length
-              ? `${customPropsEntries
-                  .map(([key, value]) => `${key}:${reactPropsValueToObjectValue(value || "")}`)
-                  .join(", ")},`
-              : ""
-          }${verb === "delete" && pathParametersEncodingMode ? "pathInlineBodyEncode: encodingFn, " : " "}${
-            paramsInPath.length ? `pathParams: { ${paramsInPath.join(", ")} },` : ""
-          } ...props }`
-        : "props"
-    });
+      paramsInPath.length ? `{${paramsInPath.join(", ")}, ...queryOptions}` : "queryOptions"
+    }: Use${componentName}Props) => useQuery<${responseType}>(${path}, () => axios.${verb}(${path}), queryOptions);
+    
+export const useInvalidate${componentName} = (${paramsTypes}) => useInvalidateQuery(${path}, "invalidate${componentName}");
 
-`;
+export const ${Component}${componentName} = (props: QueryProps<${responseType}>) => <Query<${responseType}> path="${path}" {...props}/>
+    `;
   }
 
   console.log({
@@ -585,6 +599,8 @@ ${description}export const use${componentName} = (${
     paramsTypes,
     operation,
   });
+
+  output;
 
   // Custom version
   if (customGenerator) {
@@ -650,6 +666,32 @@ export const resolveDiscriminator = (specs: OpenAPIObject) => {
  * @param version
  */
 export const addVersionMetadata = (version: string) => `export const SPEC_VERSION = "${version}"; \n`;
+
+/**
+ * Add common components and hooks (react-query)
+ *
+ * @param version
+ */
+export const addCommonComponentsAndHooks = () => `
+
+interface QueryProps<T> {
+  children?: (queryResult: QueryObserverResult<T>) => React.ReactNode;
+}
+
+const Query = <T,>({ children, path }: { path: string } & QueryProps<T>) => {
+  const result = useQuery<T>(path, () => fetch(path).then((res) => res.json()));
+  return children?.(result) as JSX.Element;
+};
+
+const useInvalidateQuery = <T extends string>(
+  queryKey: string,
+  as: T
+): Record<T, () => void> => {
+  const queryClient = useQueryClient();
+  return { [as]: () => queryClient.invalidateQueries(queryKey) } as any;
+};
+
+`;
 
 /**
  * Extract all types from #/components/schemas
@@ -863,6 +905,7 @@ const importOpenApi = async ({
   let output = "";
 
   output += addVersionMetadata(specs.info.version);
+  output += addCommonComponentsAndHooks();
   output += generateSchemasDefinition(specs.components && specs.components.schemas);
   output += generateRequestBodiesDefinition(specs.components && specs.components.requestBodies);
   output += generateResponsesDefinition(specs.components && specs.components.responses);
@@ -905,7 +948,8 @@ const importOpenApi = async ({
   if (!skipReact) {
     outputHeaders += `import React from "react";
 import { ${imports.join(", ")} } from "restful-react";
-import { QueryObserverResult, useQuery, useMutation, useQueryClient } from "react-query";
+import { QueryObserverResult, useQuery, useMutation, useQueryClient, QueryOptions } from "react-query";
+import axios from "axios";
 `;
   }
 
