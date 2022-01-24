@@ -11,7 +11,6 @@ import slash from "slash";
 
 import importOpenApi from "../scripts/import-open-api";
 import { OperationObject } from "openapi3-ts";
-import { UseGetProps } from "../useGet";
 
 const log = console.log; // tslint:disable-line:no-console
 
@@ -27,11 +26,6 @@ export interface Options {
 
 export type AdvancedOptions = Options & {
   customImport?: string;
-  customProps?: {
-    [props in keyof Omit<UseGetProps<any, any, any, any>, "lazy" | "debounce" | "path">]:
-      | string
-      | ((meta: { responseType: string }) => string);
-  };
 
   pathParametersEncodingMode?: "uriComponent" | "rfc3986";
 
@@ -65,7 +59,7 @@ const createSuccessMessage = (backend?: string) =>
   chalk.green(
     `${
       backend ? `[${backend}] ` : ""
-    }🎉  Your OpenAPI spec has been converted into ready to use restful-react components!`,
+    }🎉  Your OpenAPI spec has been converted into ready to use react-query hooks and components!`,
   );
 
 const successWithoutOutputMessage = chalk.yellow("Success! No output path specified; printed to standard output.");
@@ -76,7 +70,6 @@ const importSpecs = async (options: AdvancedOptions) => {
   const optionsKeys: Array<keyof Options | keyof AdvancedOptions> = [
     "validation",
     "customImport",
-    "customProps",
     "customGenerator",
     "pathParametersEncodingMode",
     "skipReact",
@@ -91,8 +84,6 @@ const importSpecs = async (options: AdvancedOptions) => {
     const data = readFileSync(join(process.cwd(), options.file), "utf-8");
     const { ext } = parse(options.file);
     const format = [".yaml", ".yml"].includes(ext.toLowerCase()) ? "yaml" : "json";
-
-    console.log({ format });
 
     return importOpenApi({
       data,
