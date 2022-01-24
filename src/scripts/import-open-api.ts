@@ -22,7 +22,7 @@ import {
 import swagger2openapi from "swagger2openapi";
 
 import YAML from "js-yaml";
-import { AdvancedOptions } from "../bin/restful-react-import";
+import { AdvancedOptions } from "../bin/react-query-openapi-import";
 
 const IdentifierRegexp = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
 

@@ -1,4 +1,4 @@
-import { AdvancedOptions } from "./restful-react-import";
+import { AdvancedOptions } from "./react-query-openapi-import";
 
 export interface RestfulReactAdvancedConfiguration {
   [backend: string]: AdvancedOptions;
