@@ -85,7 +85,6 @@ export const getScalar = (item: SchemaObject) => {
  */
 export const getRef = ($ref: ReferenceObject["$ref"]) => {
   if ($ref.startsWith("#/components/schemas")) {
-    // console.log($ref, pascal($ref.replace("#/components/schemas/", "")));
     return pascal($ref.replace("#/components/schemas/", ""));
   } else if ($ref.startsWith("#/components/responses")) {
     return pascal($ref.replace("#/components/responses/", "")) + "Response";
@@ -226,7 +225,6 @@ export const getResReqTypes = (
             contentType.startsWith("application/octet-stream")
           ) {
             const schema = res.content[contentType].schema!;
-            // console.log(schema, resolveValue(schema));
             return resolveValue(schema);
           }
         }
@@ -343,7 +341,6 @@ export const generateRestfulComponent = (
   const responseTypes = getResReqTypes(Object.entries(operation.responses).filter(isOk)) || "void";
   const errorTypes = getResReqTypes(Object.entries(operation.responses).filter(isError)) || "unknown";
   const requestBodyTypes = getResReqTypes([["body", operation.requestBody!]]);
-  // console.log({ requestBodyTypes });
   const needARequestBodyComponent = requestBodyTypes !== "void";
   const needAResponseComponent = responseTypes.includes("{");
 
@@ -496,35 +493,6 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
 
   if (!skipReact) {
     const encode = pathParametersEncodingMode ? "encode" : "";
-
-    // Hooks version
-    // output += `export type Use${componentName}Props = Omit<Use${Component}Props<${genericsTypesForHooksProps}>, "path"${
-    //   verb === "get" ? "" : ` | "verb"`
-    // }>${paramsInPath.length ? ` & ${componentName}PathParams` : ""};
-
-    // ${description}export const use${componentName} = (${
-    //   paramsInPath.length ? `{${paramsInPath.join(", ")}, ...props}` : "props"
-    // }: Use${componentName}Props) => use${Component}<${genericsTypes}>(${
-    //   verb === "get" ? "" : `"${verb.toUpperCase()}", `
-    // }${
-    //   paramsInPath.length
-    //     ? `(paramsInPath: ${componentName}PathParams) => ${encode}\`${route.replace(/\$\{/g, "${paramsInPath.")}\``
-    //     : `${encode}\`${route}\``
-    // }, ${
-    //   customPropsEntries.length || paramsInPath.length || verb === "delete"
-    //     ? `{ ${
-    //         customPropsEntries.length
-    //           ? `${customPropsEntries
-    //               .map(([key, value]) => `${key}:${reactPropsValueToObjectValue(value || "")}`)
-    //               .join(", ")},`
-    //           : ""
-    //       }${verb === "delete" && pathParametersEncodingMode ? "pathInlineBodyEncode: encodingFn, " : " "}${
-    //         paramsInPath.length ? `pathParams: { ${paramsInPath.join(", ")} },` : ""
-    //       } ...props }`
-    //     : "props"
-    // });
-
-    // `;
 
     const path = paramsInPath.length ? `${encode}\`${route.replace(/\$\{/g, "${")}\`` : `${encode}\`${route}\``;
 
@@ -858,7 +826,6 @@ const importOpenApi = async ({
 
   output += addVersionMetadata(specs.info.version);
   output += addCommonComponentsAndHooks();
-  // console.log(specs.components);
   output += generateSchemasDefinition(specs.components && specs.components.schemas);
   output += generateRequestBodiesDefinition(specs.components && specs.components.requestBodies);
   output += generateResponsesDefinition(specs.components && specs.components.responses);
