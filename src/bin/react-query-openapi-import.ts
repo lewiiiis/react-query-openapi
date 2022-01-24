@@ -98,7 +98,7 @@ const importSpecs = async (options: AdvancedOptions) => {
       method: "GET",
       url,
       headers: {
-        "user-agent": "restful-react-importer",
+        "user-agent": "react-query-openapi-importer",
       },
     };
 
@@ -130,7 +130,7 @@ const importSpecs = async (options: AdvancedOptions) => {
     const { github } = options;
 
     let accessToken = process.env.GITHUB_TOKEN;
-    const githubTokenPath = join(homedir(), ".restful-react");
+    const githubTokenPath = join(homedir(), ".react-query-openapi");
     if (!accessToken && existsSync(githubTokenPath)) {
       accessToken = readFileSync(githubTokenPath, "utf-8");
     } else if (!accessToken) {
@@ -159,7 +159,7 @@ const importSpecs = async (options: AdvancedOptions) => {
       url: "https://api.github.com/graphql",
       headers: {
         "content-type": "application/json",
-        "user-agent": "restful-react-importer",
+        "user-agent": "react-query-importer",
         authorization: `bearer ${accessToken}`,
       },
       body: JSON.stringify({
