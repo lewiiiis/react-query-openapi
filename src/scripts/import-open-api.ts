@@ -498,7 +498,7 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
 
     // Custom Hooks
     output += `export interface Use${componentName}Props {
-  ${paramsTypes ? `${paramsTypes};\n\t` : ""}${
+  ${paramsTypes ? `${paramsTypes};\n\t` : ""} ${queryParamsType ? `params: ${componentName}QueryParams;\n\t` : ""} ${
       needARequestBodyComponent ? `body: ${componentName}RequestBody;\n\t` : ""
     }${verb === "get" ? "queryOptions?: QueryOptions" : "mutationOptions?: MutationOptions"};
 }`;

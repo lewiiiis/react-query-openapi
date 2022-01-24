@@ -406,7 +406,7 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
         var encode = pathParametersEncodingMode ? "encode" : "";
         var path = paramsInPath.length ? encode + "`" + route.replace(/\$\{/g, "${") + "`" : encode + "`" + route + "`";
         // Custom Hooks
-        output += "export interface Use" + componentName + "Props {\n  " + (paramsTypes ? paramsTypes + ";\n\t" : "") + (needARequestBodyComponent ? "body: " + componentName + "RequestBody;\n\t" : "") + (verb === "get" ? "queryOptions?: QueryOptions" : "mutationOptions?: MutationOptions") + ";\n}";
+        output += "export interface Use" + componentName + "Props {\n  " + (paramsTypes ? paramsTypes + ";\n\t" : "") + " " + (queryParamsType ? "params: " + componentName + "QueryParams;\n\t" : "") + " " + (needARequestBodyComponent ? "body: " + componentName + "RequestBody;\n\t" : "") + (verb === "get" ? "queryOptions?: QueryOptions" : "mutationOptions?: MutationOptions") + ";\n}";
         output += description + "\n";
         if (verb === "get") {
             output += "export const use" + componentName + " = (" + (paramsInPath.length ? "{" + paramsInPath.join(", ") + ", queryOptions}" : "queryOptions") + ": Use" + componentName + "Props) => useQuery<" + responseType + ">(" + path + ", () => axios." + verb + "(" + path + "), queryOptions);";
