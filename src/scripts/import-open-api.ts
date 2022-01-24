@@ -85,6 +85,7 @@ export const getScalar = (item: SchemaObject) => {
  */
 export const getRef = ($ref: ReferenceObject["$ref"]) => {
   if ($ref.startsWith("#/components/schemas")) {
+    // console.log($ref, pascal($ref.replace("#/components/schemas/", "")));
     return pascal($ref.replace("#/components/schemas/", ""));
   } else if ($ref.startsWith("#/components/responses")) {
     return pascal($ref.replace("#/components/responses/", "")) + "Response";
@@ -225,6 +226,7 @@ export const getResReqTypes = (
             contentType.startsWith("application/octet-stream")
           ) {
             const schema = res.content[contentType].schema!;
+            // console.log(schema, resolveValue(schema));
             return resolveValue(schema);
           }
         }
@@ -310,7 +312,6 @@ export const generateRestfulComponent = (
   operationIds: string[],
   parameters: Array<ReferenceObject | ParameterObject> = [],
   schemasComponents?: ComponentsObject,
-  customProps: AdvancedOptions["customProps"] = {},
   skipReact = false,
   pathParametersEncodingMode?: AdvancedOptions["pathParametersEncodingMode"],
   customGenerator?: AdvancedOptions["customGenerator"],
@@ -342,7 +343,8 @@ export const generateRestfulComponent = (
   const responseTypes = getResReqTypes(Object.entries(operation.responses).filter(isOk)) || "void";
   const errorTypes = getResReqTypes(Object.entries(operation.responses).filter(isError)) || "unknown";
   const requestBodyTypes = getResReqTypes([["body", operation.requestBody!]]);
-  const needARequestBodyComponent = requestBodyTypes.includes("{");
+  // console.log({ requestBodyTypes });
+  const needARequestBodyComponent = requestBodyTypes !== "void";
   const needAResponseComponent = responseTypes.includes("{");
 
   /**
@@ -361,7 +363,7 @@ export const generateRestfulComponent = (
    */
 
   const paramsInPath = getParamsInPath(route).filter(param => !(verb === "delete" && param === lastParamInTheRoute));
-  const { query: queryParams = [], path: pathParams = [], header: headerParams = [] } = groupBy(
+  const { query: queryParams = [], path: pathParams = [] } = groupBy(
     [...parameters, ...(operation.parameters || [])].map<ParameterObject>(p => {
       if (isReference(p)) {
         return get(schemasComponents, p.$ref.replace("#/components/", "").replace("/", "."));
@@ -445,12 +447,12 @@ export const generateRestfulComponent = (
   //           : requestBodyTypes
   //       }, ${paramsInPath.length ? componentName + "PathParams" : "void"}`;
 
-  const customPropsEntries = Object.entries(customProps).map(([key, prop]) => {
-    if (typeof prop === "function") {
-      return [key, prop({ responseType })];
-    }
-    return [key, prop];
-  });
+  // const customPropsEntries = Object.entries(customProps).map(([key, prop]) => {
+  //   if (typeof prop === "function") {
+  //     return [key, prop({ responseType })];
+  //   }
+  //   return [key, prop];
+  // });
 
   const description = formatDescription(
     operation.summary && operation.description
@@ -487,12 +489,7 @@ export interface ${componentName}PathParams {
   }${
     needARequestBodyComponent
       ? `
-export ${
-          requestBodyTypes.includes("&")
-            ? `type ${componentName}RequestBody =`
-            : `interface ${componentName}RequestBody`
-        } ${requestBodyTypes}
-`
+export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
       : ""
   }
 `;
@@ -500,107 +497,65 @@ export ${
   if (!skipReact) {
     const encode = pathParametersEncodingMode ? "encode" : "";
 
-    // Component version
-    output += `export type ${componentName}Props = Omit<${Component}Props<${genericsTypes}>, "path"${
-      verb === "get" ? "" : ` | "verb"`
-    }>${paramsInPath.length ? ` & ${componentName}PathParams` : ""};
-
-${description}export const ${componentName} = (${
-      paramsInPath.length ? `{${paramsInPath.join(", ")}, ...props}` : "props"
-    }: ${componentName}Props) => (
-  <${Component}<${genericsTypes}>${
-      verb === "get"
-        ? ""
-        : `
-    verb="${verb.toUpperCase()}"`
-    }
-    path=${`{${encode}\`${route}\`}`}${
-      customPropsEntries.length
-        ? "\n    " + customPropsEntries.map(([key, value]) => `${key}=${value}`).join("\n    ")
-        : ""
-    }
-    ${verb === "delete" && pathParametersEncodingMode ? "pathInlineBodyEncode={encodingFn}" : ""}
-    {...props}
-  />
-);
-
-`;
-
-    // Poll component
-    if (headerParams.map(({ name }) => name.toLocaleLowerCase()).includes("prefer")) {
-      output += `export type Poll${componentName}Props = Omit<PollProps<${genericsTypes}>, "path">${
-        paramsInPath.length ? ` & {${paramsTypes}}` : ""
-      };
-
-${operation.summary ? `// ${operation.summary} (long polling)` : ""}
-export const Poll${componentName} = (${
-        paramsInPath.length ? `{${paramsInPath.join(", ")}, ...props}` : "props"
-      }: Poll${componentName}Props) => (
-<Poll<${genericsTypes}>
-  path={${encode}\`${route}\`}
-  {...props}
-/>
-);
-
-`;
-    }
-
     // Hooks version
-    //     output += `export type Use${componentName}Props = Omit<Use${Component}Props<${genericsTypesForHooksProps}>, "path"${
-    //       verb === "get" ? "" : ` | "verb"`
-    //     }>${paramsInPath.length ? ` & ${componentName}PathParams` : ""};
+    // output += `export type Use${componentName}Props = Omit<Use${Component}Props<${genericsTypesForHooksProps}>, "path"${
+    //   verb === "get" ? "" : ` | "verb"`
+    // }>${paramsInPath.length ? ` & ${componentName}PathParams` : ""};
 
     // ${description}export const use${componentName} = (${
-    //       paramsInPath.length ? `{${paramsInPath.join(", ")}, ...props}` : "props"
-    //     }: Use${componentName}Props) => use${Component}<${genericsTypes}>(${
-    //       verb === "get" ? "" : `"${verb.toUpperCase()}", `
-    //     }${
-    //       paramsInPath.length
-    //         ? `(paramsInPath: ${componentName}PathParams) => ${encode}\`${route.replace(/\$\{/g, "${paramsInPath.")}\``
-    //         : `${encode}\`${route}\``
-    //     }, ${
-    //       customPropsEntries.length || paramsInPath.length || verb === "delete"
-    //         ? `{ ${
-    //             customPropsEntries.length
-    //               ? `${customPropsEntries
-    //                   .map(([key, value]) => `${key}:${reactPropsValueToObjectValue(value || "")}`)
-    //                   .join(", ")},`
-    //               : ""
-    //           }${verb === "delete" && pathParametersEncodingMode ? "pathInlineBodyEncode: encodingFn, " : " "}${
-    //             paramsInPath.length ? `pathParams: { ${paramsInPath.join(", ")} },` : ""
-    //           } ...props }`
-    //         : "props"
-    //     });
+    //   paramsInPath.length ? `{${paramsInPath.join(", ")}, ...props}` : "props"
+    // }: Use${componentName}Props) => use${Component}<${genericsTypes}>(${
+    //   verb === "get" ? "" : `"${verb.toUpperCase()}", `
+    // }${
+    //   paramsInPath.length
+    //     ? `(paramsInPath: ${componentName}PathParams) => ${encode}\`${route.replace(/\$\{/g, "${paramsInPath.")}\``
+    //     : `${encode}\`${route}\``
+    // }, ${
+    //   customPropsEntries.length || paramsInPath.length || verb === "delete"
+    //     ? `{ ${
+    //         customPropsEntries.length
+    //           ? `${customPropsEntries
+    //               .map(([key, value]) => `${key}:${reactPropsValueToObjectValue(value || "")}`)
+    //               .join(", ")},`
+    //           : ""
+    //       }${verb === "delete" && pathParametersEncodingMode ? "pathInlineBodyEncode: encodingFn, " : " "}${
+    //         paramsInPath.length ? `pathParams: { ${paramsInPath.join(", ")} },` : ""
+    //       } ...props }`
+    //     : "props"
+    // });
 
     // `;
 
     const path = paramsInPath.length ? `${encode}\`${route.replace(/\$\{/g, "${")}\`` : `${encode}\`${route}\``;
 
     // Custom Hooks
-    output += `export interface Use${componentName}Props extends QueryOptions {${paramsTypes}} ;
+    output += `export interface Use${componentName}Props {
+  ${paramsTypes ? `${paramsTypes};\n\t` : ""}${
+      needARequestBodyComponent ? `body: ${componentName}RequestBody;\n\t` : ""
+    }${verb === "get" ? "queryOptions?: QueryOptions" : "mutationOptions?: MutationOptions"};
+}`;
 
-${description}export const use${componentName} = (${
-      paramsInPath.length ? `{${paramsInPath.join(", ")}, ...queryOptions}` : "queryOptions"
-    }: Use${componentName}Props) => useQuery<${responseType}>(${path}, () => axios.${verb}(${path}), queryOptions);
-    
-export const useInvalidate${componentName} = (${paramsTypes}) => useInvalidateQuery(${path}, "invalidate${componentName}");
+    output += description + "\n";
 
-export const ${Component}${componentName} = (props: QueryProps<${responseType}>) => <Query<${responseType}> path="${path}" {...props}/>
-    `;
+    if (verb === "get") {
+      output += `export const use${componentName} = (${
+        paramsInPath.length ? `{${paramsInPath.join(", ")}, queryOptions}` : "queryOptions"
+      }: Use${componentName}Props) => useQuery<${responseType}>(${path}, () => axios.${verb}(${path}), queryOptions);`;
+
+      output += `export const useInvalidate${componentName} = (${paramsTypes}) => useInvalidateQuery(${path}, "invalidate${componentName}");`;
+      output += `export const ${Component}${componentName} = (props: QueryProps<${responseType}>) => <Query<${responseType}> path="${path}" {...props}/>`;
+    } else {
+      output += `export const use${componentName} = (${
+        paramsInPath.length || needARequestBodyComponent
+          ? `{${paramsInPath.length === 1 ? `${paramsInPath},` : paramsInPath.join(", ")} ${
+              needARequestBodyComponent ? "body," : ""
+            } mutationOptions}`
+          : "mutationOptions"
+      }: Use${componentName}Props) => useMutation<${responseType}>(${path}, () => axios.${verb}(${path}, ${
+        needARequestBodyComponent ? "body" : ""
+      }), mutationOptions);`;
+    }
   }
-
-  console.log({
-    componentName,
-    verb,
-    route,
-    description,
-    genericsTypes,
-    paramsInPath,
-    paramsTypes,
-    operation,
-  });
-
-  output;
 
   // Custom version
   if (customGenerator) {
@@ -877,8 +832,6 @@ const importOpenApi = async ({
   validation,
   skipReact,
   customImport,
-  customProps,
-  customGenerator,
   pathParametersEncodingMode,
 }: {
   data: string;
@@ -887,7 +840,6 @@ const importOpenApi = async ({
   validation?: boolean;
   skipReact?: boolean;
   customImport?: AdvancedOptions["customImport"];
-  customProps?: AdvancedOptions["customProps"];
   customGenerator?: AdvancedOptions["customGenerator"];
   pathParametersEncodingMode?: "uriComponent" | "rfc3986";
 }) => {
@@ -906,24 +858,14 @@ const importOpenApi = async ({
 
   output += addVersionMetadata(specs.info.version);
   output += addCommonComponentsAndHooks();
+  // console.log(specs.components);
   output += generateSchemasDefinition(specs.components && specs.components.schemas);
   output += generateRequestBodiesDefinition(specs.components && specs.components.requestBodies);
   output += generateResponsesDefinition(specs.components && specs.components.responses);
   Object.entries(specs.paths).forEach(([route, verbs]: [string, PathItemObject]) => {
     Object.entries(verbs).forEach(([verb, operation]: [string, OperationObject]) => {
       if (["get", "post", "patch", "put", "delete"].includes(verb)) {
-        output += generateRestfulComponent(
-          operation,
-          verb,
-          route,
-          operationIds,
-          verbs.parameters,
-          specs.components,
-          customProps,
-          skipReact,
-          pathParametersEncodingMode,
-          customGenerator,
-        );
+        output += generateRestfulComponent(operation, verb, route, operationIds, verbs.parameters, specs.components);
       }
     });
   });
@@ -948,7 +890,7 @@ const importOpenApi = async ({
   if (!skipReact) {
     outputHeaders += `import React from "react";
 import { ${imports.join(", ")} } from "restful-react";
-import { QueryObserverResult, useQuery, useMutation, useQueryClient, QueryOptions } from "react-query";
+import { QueryObserverResult, useQuery, useMutation, useQueryClient, QueryOptions, MutationOptions } from "react-query";
 import axios from "axios";
 `;
   }
