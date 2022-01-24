@@ -528,9 +528,9 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
               paramsInPath.length === 1 ? `${paramsInPath},` : paramsInPath.join(", ")
             } ${needARequestBodyComponent ? "body," : ""} mutationOptions}`
           : "{mutationOptions}"
-      }: Use${componentName}Props) => useMutation<${responseType}>(${path}, () => axios.${verb}(${path}, ${
-        needARequestBodyComponent ? "body" : "{}"
-      }, ${queryParamsType ? "{params}" : "{}"}), mutationOptions);\n\n`;
+      }: Use${componentName}Props) => useMutation<${responseType}>(${path}, () => axios.${verb}(${path} ${
+        needARequestBodyComponent ? ",body" : verb !== "delete" ? ",{}" : ""
+      } ${queryParamsType ? ",{params}" : ",{}"}), mutationOptions);\n\n`;
     }
   }
 
