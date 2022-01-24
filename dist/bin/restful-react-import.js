@@ -76,7 +76,6 @@ var getScalar = function (item) {
  */
 var getRef = function ($ref) {
     if ($ref.startsWith("#/components/schemas")) {
-        // console.log($ref, pascal($ref.replace("#/components/schemas/", "")));
         return _case.pascal($ref.replace("#/components/schemas/", ""));
     }
     else if ($ref.startsWith("#/components/responses")) {
@@ -202,7 +201,6 @@ var getResReqTypes = function (responsesOrRequests) {
                         contentType.startsWith("application/json") ||
                         contentType.startsWith("application/octet-stream")) {
                         var schema = res.content[contentType].schema;
-                        // console.log(schema, resolveValue(schema));
                         return resolveValue(schema);
                     }
                 }
@@ -303,7 +301,6 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
     var responseTypes = getResReqTypes(Object.entries(operation.responses).filter(isOk)) || "void";
     var errorTypes = getResReqTypes(Object.entries(operation.responses).filter(isError)) || "unknown";
     var requestBodyTypes = getResReqTypes([["body", operation.requestBody]]);
-    // console.log({ requestBodyTypes });
     var needARequestBodyComponent = requestBodyTypes !== "void";
     var needAResponseComponent = responseTypes.includes("{");
     /**
@@ -407,32 +404,6 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
         : "") + "\n";
     if (!skipReact) {
         var encode = pathParametersEncodingMode ? "encode" : "";
-        // Hooks version
-        // output += `export type Use${componentName}Props = Omit<Use${Component}Props<${genericsTypesForHooksProps}>, "path"${
-        //   verb === "get" ? "" : ` | "verb"`
-        // }>${paramsInPath.length ? ` & ${componentName}PathParams` : ""};
-        // ${description}export const use${componentName} = (${
-        //   paramsInPath.length ? `{${paramsInPath.join(", ")}, ...props}` : "props"
-        // }: Use${componentName}Props) => use${Component}<${genericsTypes}>(${
-        //   verb === "get" ? "" : `"${verb.toUpperCase()}", `
-        // }${
-        //   paramsInPath.length
-        //     ? `(paramsInPath: ${componentName}PathParams) => ${encode}\`${route.replace(/\$\{/g, "${paramsInPath.")}\``
-        //     : `${encode}\`${route}\``
-        // }, ${
-        //   customPropsEntries.length || paramsInPath.length || verb === "delete"
-        //     ? `{ ${
-        //         customPropsEntries.length
-        //           ? `${customPropsEntries
-        //               .map(([key, value]) => `${key}:${reactPropsValueToObjectValue(value || "")}`)
-        //               .join(", ")},`
-        //           : ""
-        //       }${verb === "delete" && pathParametersEncodingMode ? "pathInlineBodyEncode: encodingFn, " : " "}${
-        //         paramsInPath.length ? `pathParams: { ${paramsInPath.join(", ")} },` : ""
-        //       } ...props }`
-        //     : "props"
-        // });
-        // `;
         var path = paramsInPath.length ? encode + "`" + route.replace(/\$\{/g, "${") + "`" : encode + "`" + route + "`";
         // Custom Hooks
         output += "export interface Use" + componentName + "Props {\n  " + (paramsTypes ? paramsTypes + ";\n\t" : "") + (needARequestBodyComponent ? "body: " + componentName + "RequestBody;\n\t" : "") + (verb === "get" ? "queryOptions?: QueryOptions" : "mutationOptions?: MutationOptions") + ";\n}";
@@ -448,16 +419,6 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
                 : "mutationOptions") + ": Use" + componentName + "Props) => useMutation<" + responseType + ">(" + path + ", () => axios." + verb + "(" + path + ", " + (needARequestBodyComponent ? "body" : "") + "), mutationOptions);";
         }
     }
-    // console.log({
-    //   componentName,
-    //   verb,
-    //   route,
-    //   description,
-    //   genericsTypes,
-    //   paramsInPath,
-    //   paramsTypes,
-    //   operation,
-    // });
     // Custom version
     if (customGenerator) {
         output += customGenerator({
@@ -480,7 +441,6 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
  * @param schema
  */
 var generateInterface = function (name, schema) {
-    // console.log({ name, schema });
     var scalar = getScalar(schema);
     var isEmptyInterface = scalar === "{}";
     return "" + formatDescription(schema.description) + (isEmptyInterface ? "// tslint:disable-next-line:no-empty-interface\n" : "") + "export interface " + _case.pascal(name) + " " + scalar;
@@ -710,7 +670,6 @@ var importOpenApi = function (_a) {
                     output = "";
                     output += addVersionMetadata(specs.info.version);
                     output += addCommonComponentsAndHooks();
-                    // console.log(specs.components);
                     output += generateSchemasDefinition(specs.components && specs.components.schemas);
                     output += generateRequestBodiesDefinition(specs.components && specs.components.requestBodies);
                     output += generateResponsesDefinition(specs.components && specs.components.responses);
@@ -790,7 +749,6 @@ var importSpecs$1 = function (options) { return tslib.__awaiter(void 0, void 0, 
                 data = fs.readFileSync(path.join(process.cwd(), options.file), "utf-8");
                 ext = path.parse(options.file).ext;
                 format = [".yaml", ".yml"].includes(ext.toLowerCase()) ? "yaml" : "json";
-                console.log({ format: format });
                 return [2 /*return*/, importOpenApi(tslib.__assign({ data: data,
                         format: format,
                         transformer: transformer }, importOptions))];
