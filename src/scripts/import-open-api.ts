@@ -505,7 +505,7 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
     output += `export interface Use${componentName}Props {
   ${paramsTypes ? `${paramsTypes};\n\t` : ""} ${queryParamsType ? `params: ${componentName}QueryParams;\n\t` : ""} ${
       needARequestBodyComponent ? `body: ${componentName}RequestBody;\n\t` : ""
-    }${verb === "get" ? "queryOptions?: QueryOptions" : "mutationOptions?: MutationOptions"};
+    }${verb === "get" ? "queryOptions?: QueryOptions<any>" : "mutationOptions?: MutationOptions"};
   } \n\n`;
 
     if (verb === "get") {
@@ -530,7 +530,7 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
           : "{mutationOptions}"
       }: Use${componentName}Props) => useMutation<${responseType}>(${path}, () => axios.${verb}(${path}, ${
         needARequestBodyComponent ? "body" : "{}"
-      }, ${queryParams ? "{params}" : "{}"}), mutationOptions);\n\n`;
+      }, ${queryParamsType ? "{params}" : "{}"}), mutationOptions);\n\n`;
     }
   }
 
