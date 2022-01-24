@@ -76,6 +76,7 @@ var getScalar = function (item) {
  */
 var getRef = function ($ref) {
     if ($ref.startsWith("#/components/schemas")) {
+        // console.log($ref, pascal($ref.replace("#/components/schemas/", "")));
         return _case.pascal($ref.replace("#/components/schemas/", ""));
     }
     else if ($ref.startsWith("#/components/responses")) {
@@ -201,6 +202,7 @@ var getResReqTypes = function (responsesOrRequests) {
                         contentType.startsWith("application/json") ||
                         contentType.startsWith("application/octet-stream")) {
                         var schema = res.content[contentType].schema;
+                        // console.log(schema, resolveValue(schema));
                         return resolveValue(schema);
                     }
                 }
@@ -270,9 +272,8 @@ var importSpecs = function (data, extension) {
  * @param baseUrl
  * @param operationIds - List of `operationId` to check duplication
  */
-var generateRestfulComponent = function (operation, verb, route, operationIds, parameters, schemasComponents, customProps, skipReact, pathParametersEncodingMode, customGenerator) {
+var generateRestfulComponent = function (operation, verb, route, operationIds, parameters, schemasComponents, skipReact, pathParametersEncodingMode, customGenerator) {
     if (parameters === void 0) { parameters = []; }
-    if (customProps === void 0) { customProps = {}; }
     if (skipReact === void 0) { skipReact = false; }
     if (!operation.operationId) {
         throw new Error("Every path must have a operationId - No operationId set for " + verb + " " + route);
@@ -302,7 +303,8 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
     var responseTypes = getResReqTypes(Object.entries(operation.responses).filter(isOk)) || "void";
     var errorTypes = getResReqTypes(Object.entries(operation.responses).filter(isError)) || "unknown";
     var requestBodyTypes = getResReqTypes([["body", operation.requestBody]]);
-    var needARequestBodyComponent = requestBodyTypes.includes("{");
+    // console.log({ requestBodyTypes });
+    var needARequestBodyComponent = requestBodyTypes !== "void";
     var needAResponseComponent = responseTypes.includes("{");
     /**
      * We strip the ID from the URL in order to pass it as an argument to the
@@ -326,7 +328,7 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
         else {
             return p;
         }
-    }), "in"), _b = _a.query, queryParams = _b === void 0 ? [] : _b, _c = _a.path, pathParams = _c === void 0 ? [] : _c, _d = _a.header, headerParams = _d === void 0 ? [] : _d;
+    }), "in"), _b = _a.query, queryParams = _b === void 0 ? [] : _b, _c = _a.path, pathParams = _c === void 0 ? [] : _c;
     var paramsTypes = paramsInPath
         .map(function (p) {
         try {
@@ -383,13 +385,12 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
     //           ? componentName + "RequestBody"
     //           : requestBodyTypes
     //       }, ${paramsInPath.length ? componentName + "PathParams" : "void"}`;
-    var customPropsEntries = Object.entries(customProps).map(function (_a) {
-        var _b = tslib.__read(_a, 2), key = _b[0], prop = _b[1];
-        if (typeof prop === "function") {
-            return [key, prop({ responseType: responseType })];
-        }
-        return [key, prop];
-    });
+    // const customPropsEntries = Object.entries(customProps).map(([key, prop]) => {
+    //   if (typeof prop === "function") {
+    //     return [key, prop({ responseType })];
+    //   }
+    //   return [key, prop];
+    // });
     var description = formatDescription(operation.summary && operation.description
         ? operation.summary + "\n\n" + operation.description
         : "" + (operation.summary || "") + (operation.description || ""));
@@ -402,68 +403,61 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
         : "") + (paramsInPath.length
         ? "\nexport interface " + componentName + "PathParams {\n  " + paramsTypes + "\n}\n"
         : "") + (needARequestBodyComponent
-        ? "\nexport " + (requestBodyTypes.includes("&")
-            ? "type " + componentName + "RequestBody ="
-            : "interface " + componentName + "RequestBody") + " " + requestBodyTypes + "\n"
+        ? "\nexport " + ("type " + componentName + "RequestBody = " + requestBodyTypes)
         : "") + "\n";
     if (!skipReact) {
         var encode = pathParametersEncodingMode ? "encode" : "";
-        // Component version
-        output += "export type " + componentName + "Props = Omit<" + Component + "Props<" + genericsTypes + ">, \"path\"" + (verb === "get" ? "" : " | \"verb\"") + ">" + (paramsInPath.length ? " & " + componentName + "PathParams" : "") + ";\n\n" + description + "export const " + componentName + " = (" + (paramsInPath.length ? "{" + paramsInPath.join(", ") + ", ...props}" : "props") + ": " + componentName + "Props) => (\n  <" + Component + "<" + genericsTypes + ">" + (verb === "get"
-            ? ""
-            : "\n    verb=\"" + verb.toUpperCase() + "\"") + "\n    path=" + ("{" + encode + "`" + route + "`}") + (customPropsEntries.length
-            ? "\n    " + customPropsEntries.map(function (_a) {
-                var _b = tslib.__read(_a, 2), key = _b[0], value = _b[1];
-                return key + "=" + value;
-            }).join("\n    ")
-            : "") + "\n    " + (verb === "delete" && pathParametersEncodingMode ? "pathInlineBodyEncode={encodingFn}" : "") + "\n    {...props}\n  />\n);\n\n";
-        // Poll component
-        if (headerParams.map(function (_a) {
-            var name = _a.name;
-            return name.toLocaleLowerCase();
-        }).includes("prefer")) {
-            output += "export type Poll" + componentName + "Props = Omit<PollProps<" + genericsTypes + ">, \"path\">" + (paramsInPath.length ? " & {" + paramsTypes + "}" : "") + ";\n\n" + (operation.summary ? "// " + operation.summary + " (long polling)" : "") + "\nexport const Poll" + componentName + " = (" + (paramsInPath.length ? "{" + paramsInPath.join(", ") + ", ...props}" : "props") + ": Poll" + componentName + "Props) => (\n<Poll<" + genericsTypes + ">\n  path={" + encode + "`" + route + "`}\n  {...props}\n/>\n);\n\n";
-        }
         // Hooks version
-        //     output += `export type Use${componentName}Props = Omit<Use${Component}Props<${genericsTypesForHooksProps}>, "path"${
-        //       verb === "get" ? "" : ` | "verb"`
-        //     }>${paramsInPath.length ? ` & ${componentName}PathParams` : ""};
+        // output += `export type Use${componentName}Props = Omit<Use${Component}Props<${genericsTypesForHooksProps}>, "path"${
+        //   verb === "get" ? "" : ` | "verb"`
+        // }>${paramsInPath.length ? ` & ${componentName}PathParams` : ""};
         // ${description}export const use${componentName} = (${
-        //       paramsInPath.length ? `{${paramsInPath.join(", ")}, ...props}` : "props"
-        //     }: Use${componentName}Props) => use${Component}<${genericsTypes}>(${
-        //       verb === "get" ? "" : `"${verb.toUpperCase()}", `
-        //     }${
-        //       paramsInPath.length
-        //         ? `(paramsInPath: ${componentName}PathParams) => ${encode}\`${route.replace(/\$\{/g, "${paramsInPath.")}\``
-        //         : `${encode}\`${route}\``
-        //     }, ${
-        //       customPropsEntries.length || paramsInPath.length || verb === "delete"
-        //         ? `{ ${
-        //             customPropsEntries.length
-        //               ? `${customPropsEntries
-        //                   .map(([key, value]) => `${key}:${reactPropsValueToObjectValue(value || "")}`)
-        //                   .join(", ")},`
-        //               : ""
-        //           }${verb === "delete" && pathParametersEncodingMode ? "pathInlineBodyEncode: encodingFn, " : " "}${
-        //             paramsInPath.length ? `pathParams: { ${paramsInPath.join(", ")} },` : ""
-        //           } ...props }`
-        //         : "props"
-        //     });
+        //   paramsInPath.length ? `{${paramsInPath.join(", ")}, ...props}` : "props"
+        // }: Use${componentName}Props) => use${Component}<${genericsTypes}>(${
+        //   verb === "get" ? "" : `"${verb.toUpperCase()}", `
+        // }${
+        //   paramsInPath.length
+        //     ? `(paramsInPath: ${componentName}PathParams) => ${encode}\`${route.replace(/\$\{/g, "${paramsInPath.")}\``
+        //     : `${encode}\`${route}\``
+        // }, ${
+        //   customPropsEntries.length || paramsInPath.length || verb === "delete"
+        //     ? `{ ${
+        //         customPropsEntries.length
+        //           ? `${customPropsEntries
+        //               .map(([key, value]) => `${key}:${reactPropsValueToObjectValue(value || "")}`)
+        //               .join(", ")},`
+        //           : ""
+        //       }${verb === "delete" && pathParametersEncodingMode ? "pathInlineBodyEncode: encodingFn, " : " "}${
+        //         paramsInPath.length ? `pathParams: { ${paramsInPath.join(", ")} },` : ""
+        //       } ...props }`
+        //     : "props"
+        // });
         // `;
         var path = paramsInPath.length ? encode + "`" + route.replace(/\$\{/g, "${") + "`" : encode + "`" + route + "`";
         // Custom Hooks
-        output += "export interface Use" + componentName + "Props extends QueryOptions {" + paramsTypes + "} ;\n\n" + description + "export const use" + componentName + " = (" + (paramsInPath.length ? "{" + paramsInPath.join(", ") + ", ...queryOptions}" : "queryOptions") + ": Use" + componentName + "Props) => useQuery<" + responseType + ">(" + path + ", () => axios." + verb + "(" + path + "), queryOptions);\n    \nexport const useInvalidate" + componentName + " = (" + paramsTypes + ") => useInvalidateQuery(" + path + ", \"invalidate" + componentName + "\");\n\nexport const " + Component + componentName + " = (props: QueryProps<" + responseType + ">) => <Query<" + responseType + "> path=\"" + path + "\" {...props}/>\n    ";
+        output += "export interface Use" + componentName + "Props {\n  " + (paramsTypes ? paramsTypes + ";\n\t" : "") + (needARequestBodyComponent ? "body: " + componentName + "RequestBody;\n\t" : "") + (verb === "get" ? "queryOptions?: QueryOptions" : "mutationOptions?: MutationOptions") + ";\n}";
+        output += description + "\n";
+        if (verb === "get") {
+            output += "export const use" + componentName + " = (" + (paramsInPath.length ? "{" + paramsInPath.join(", ") + ", queryOptions}" : "queryOptions") + ": Use" + componentName + "Props) => useQuery<" + responseType + ">(" + path + ", () => axios." + verb + "(" + path + "), queryOptions);";
+            output += "export const useInvalidate" + componentName + " = (" + paramsTypes + ") => useInvalidateQuery(" + path + ", \"invalidate" + componentName + "\");";
+            output += "export const " + Component + componentName + " = (props: QueryProps<" + responseType + ">) => <Query<" + responseType + "> path=\"" + path + "\" {...props}/>";
+        }
+        else {
+            output += "export const use" + componentName + " = (" + (paramsInPath.length || needARequestBodyComponent
+                ? "{" + (paramsInPath.length === 1 ? paramsInPath + "," : paramsInPath.join(", ")) + " " + (needARequestBodyComponent ? "body," : "") + " mutationOptions}"
+                : "mutationOptions") + ": Use" + componentName + "Props) => useMutation<" + responseType + ">(" + path + ", () => axios." + verb + "(" + path + ", " + (needARequestBodyComponent ? "body" : "") + "), mutationOptions);";
+        }
     }
-    console.log({
-        componentName: componentName,
-        verb: verb,
-        route: route,
-        description: description,
-        genericsTypes: genericsTypes,
-        paramsInPath: paramsInPath,
-        paramsTypes: paramsTypes,
-        operation: operation,
-    });
+    // console.log({
+    //   componentName,
+    //   verb,
+    //   route,
+    //   description,
+    //   genericsTypes,
+    //   paramsInPath,
+    //   paramsTypes,
+    //   operation,
+    // });
     // Custom version
     if (customGenerator) {
         output += customGenerator({
@@ -486,6 +480,7 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
  * @param schema
  */
 var generateInterface = function (name, schema) {
+    // console.log({ name, schema });
     var scalar = getScalar(schema);
     var isEmptyInterface = scalar === "{}";
     return "" + formatDescription(schema.description) + (isEmptyInterface ? "// tslint:disable-next-line:no-empty-interface\n" : "") + "export interface " + _case.pascal(name) + " " + scalar;
@@ -692,7 +687,7 @@ var getEncodingFunction = function (mode) {
  * @param options.skipReact skip the generation of react components/hooks
  */
 var importOpenApi = function (_a) {
-    var data = _a.data, format = _a.format, transformer = _a.transformer, validation = _a.validation, skipReact = _a.skipReact, customImport = _a.customImport, customProps = _a.customProps, customGenerator = _a.customGenerator, pathParametersEncodingMode = _a.pathParametersEncodingMode;
+    var data = _a.data, format = _a.format, transformer = _a.transformer, validation = _a.validation, skipReact = _a.skipReact, customImport = _a.customImport, pathParametersEncodingMode = _a.pathParametersEncodingMode;
     return tslib.__awaiter(void 0, void 0, void 0, function () {
         var operationIds, specs, output, haveGet, haveMutate, havePoll, imports, outputHeaders;
         return tslib.__generator(this, function (_b) {
@@ -715,6 +710,7 @@ var importOpenApi = function (_a) {
                     output = "";
                     output += addVersionMetadata(specs.info.version);
                     output += addCommonComponentsAndHooks();
+                    // console.log(specs.components);
                     output += generateSchemasDefinition(specs.components && specs.components.schemas);
                     output += generateRequestBodiesDefinition(specs.components && specs.components.requestBodies);
                     output += generateResponsesDefinition(specs.components && specs.components.responses);
@@ -723,7 +719,7 @@ var importOpenApi = function (_a) {
                         Object.entries(verbs).forEach(function (_a) {
                             var _b = tslib.__read(_a, 2), verb = _b[0], operation = _b[1];
                             if (["get", "post", "patch", "put", "delete"].includes(verb)) {
-                                output += generateRestfulComponent(operation, verb, route, operationIds, verbs.parameters, specs.components, customProps, skipReact, pathParametersEncodingMode, customGenerator);
+                                output += generateRestfulComponent(operation, verb, route, operationIds, verbs.parameters, specs.components);
                             }
                         });
                     });
@@ -742,7 +738,7 @@ var importOpenApi = function (_a) {
                     }
                     outputHeaders = "/* Generated by restful-react */\n\n";
                     if (!skipReact) {
-                        outputHeaders += "import React from \"react\";\nimport { " + imports.join(", ") + " } from \"restful-react\";\nimport { QueryObserverResult, useQuery, useMutation, useQueryClient, QueryOptions } from \"react-query\";\nimport axios from \"axios\";\n";
+                        outputHeaders += "import React from \"react\";\nimport { " + imports.join(", ") + " } from \"restful-react\";\nimport { QueryObserverResult, useQuery, useMutation, useQueryClient, QueryOptions, MutationOptions } from \"react-query\";\nimport axios from \"axios\";\n";
                     }
                     if (customImport) {
                         outputHeaders += "\n" + customImport + "\n";
@@ -770,7 +766,7 @@ program.option("--skip-react", "skip the generation of react components/hooks");
 program.option("--config [value]", "override flags by a config file");
 program.parse(process.argv);
 var createSuccessMessage = function (backend) {
-    return chalk.green((backend ? "[" + backend + "] " : "") + "\uD83C\uDF89  Your OpenAPI spec has been converted into ready to use restful-react components!");
+    return chalk.green((backend ? "[" + backend + "] " : "") + "\uD83C\uDF89  Your OpenAPI spec has been converted into ready to use react-query hooks and components!");
 };
 var successWithoutOutputMessage = chalk.yellow("Success! No output path specified; printed to standard output.");
 var importSpecs$1 = function (options) { return tslib.__awaiter(void 0, void 0, void 0, function () {
@@ -782,7 +778,6 @@ var importSpecs$1 = function (options) { return tslib.__awaiter(void 0, void 0, 
                 optionsKeys = [
                     "validation",
                     "customImport",
-                    "customProps",
                     "customGenerator",
                     "pathParametersEncodingMode",
                     "skipReact",
