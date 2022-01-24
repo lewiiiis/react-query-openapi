@@ -406,7 +406,7 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
         output += description + "\n";
         var path = paramsInPath.length ? encode + "`" + route.replace(/\$\{/g, "${") + "`" : encode + "`" + route + "`";
         // Custom Hooks
-        output += "export interface Use" + componentName + "Props {\n  " + (paramsTypes ? paramsTypes + ";\n\t" : "") + " " + (queryParamsType ? "params: " + componentName + "QueryParams;\n\t" : "") + " " + (needARequestBodyComponent ? "body: " + componentName + "RequestBody;\n\t" : "") + (verb === "get" ? "queryOptions?: QueryOptions" : "mutationOptions?: MutationOptions") + ";\n  } \n\n";
+        output += "export interface Use" + componentName + "Props {\n  " + (paramsTypes ? paramsTypes + ";\n\t" : "") + " " + (queryParamsType ? "params: " + componentName + "QueryParams;\n\t" : "") + " " + (needARequestBodyComponent ? "body: " + componentName + "RequestBody;\n\t" : "") + (verb === "get" ? "queryOptions?: QueryOptions<any>" : "mutationOptions?: MutationOptions") + ";\n  } \n\n";
         if (verb === "get") {
             output += "export const use" + componentName + " = (" + (paramsInPath.length || queryParamsType
                 ? "{" + (queryParamsType ? "params," : "") + " " + (paramsInPath.length === 1 ? paramsInPath + "," : paramsInPath.join(", ")) + " queryOptions}"
@@ -417,7 +417,7 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
         else {
             output += "export const use" + componentName + " = (" + (paramsInPath.length || needARequestBodyComponent || queryParamsType
                 ? "{" + (queryParamsType ? "params," : "") + " " + (paramsInPath.length === 1 ? paramsInPath + "," : paramsInPath.join(", ")) + " " + (needARequestBodyComponent ? "body," : "") + " mutationOptions}"
-                : "{mutationOptions}") + ": Use" + componentName + "Props) => useMutation<" + responseType + ">(" + path + ", () => axios." + verb + "(" + path + ", " + (needARequestBodyComponent ? "body" : "{}") + ", " + (queryParams ? "{params}" : "{}") + "), mutationOptions);\n\n";
+                : "{mutationOptions}") + ": Use" + componentName + "Props) => useMutation<" + responseType + ">(" + path + ", () => axios." + verb + "(" + path + ", " + (needARequestBodyComponent ? "body" : "{}") + ", " + (queryParamsType ? "{params}" : "{}") + "), mutationOptions);\n\n";
         }
     }
     // Custom version
