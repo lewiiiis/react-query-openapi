@@ -417,7 +417,7 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
         else {
             output += "export const use" + componentName + " = (" + (paramsInPath.length || needARequestBodyComponent || queryParamsType
                 ? "{" + (queryParamsType ? "params," : "") + " " + (paramsInPath.length === 1 ? paramsInPath + "," : paramsInPath.join(", ")) + " " + (needARequestBodyComponent ? "body," : "") + " mutationOptions}"
-                : "{mutationOptions}") + ": Use" + componentName + "Props) => useMutation<" + responseType + ">(" + path + ", () => axios." + verb + "(" + path + ", " + (needARequestBodyComponent ? "body" : "{}") + ", " + (queryParamsType ? "{params}" : "{}") + "), mutationOptions);\n\n";
+                : "{mutationOptions}") + ": Use" + componentName + "Props) => useMutation<" + responseType + ">(" + path + ", () => axios." + verb + "(" + path + " " + (needARequestBodyComponent ? ",body" : verb !== "delete" ? ",{}" : "") + " " + (queryParamsType ? ",{params}" : ",{}") + "), mutationOptions);\n\n";
         }
     }
     // Custom version
