@@ -510,21 +510,27 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
 
     if (verb === "get") {
       output += `export const use${componentName} = (${
-        paramsInPath.length ? `{${paramsInPath.join(", ")}, queryOptions}` : "queryOptions"
-      }: Use${componentName}Props) => useQuery<${responseType}>(${path}, () => axios.${verb}(${path}), queryOptions);\n\n`;
+        paramsInPath.length || queryParamsType
+          ? `{${queryParamsType ? "params," : ""} ${
+              paramsInPath.length === 1 ? `${paramsInPath},` : paramsInPath.join(", ")
+            } queryOptions}`
+          : "{queryOptions}"
+      }: Use${componentName}Props) => useQuery<${responseType}>(${path}, () => axios.${verb}(${path} ${
+        queryParamsType ? ",{params}" : ""
+      }), queryOptions);\n\n`;
 
       output += `export const useInvalidate${componentName} = (${paramsTypes}) => useInvalidateQuery(${path}, "invalidate${componentName}");\n\n`;
       // output += `export const ${Component}${componentName} = (props: QueryProps<${responseType}>) => <Query<${responseType}> path={${path}} {...props}/>\n\n`;
     } else {
       output += `export const use${componentName} = (${
-        paramsInPath.length || needARequestBodyComponent
-          ? `{${paramsInPath.length === 1 ? `${paramsInPath},` : paramsInPath.join(", ")} ${
-              needARequestBodyComponent ? "body," : ""
-            } mutationOptions}`
-          : "mutationOptions"
+        paramsInPath.length || needARequestBodyComponent || queryParamsType
+          ? `{${queryParamsType ? "params," : ""} ${
+              paramsInPath.length === 1 ? `${paramsInPath},` : paramsInPath.join(", ")
+            } ${needARequestBodyComponent ? "body," : ""} mutationOptions}`
+          : "{mutationOptions}"
       }: Use${componentName}Props) => useMutation<${responseType}>(${path}, () => axios.${verb}(${path}, ${
-        needARequestBodyComponent ? "body" : ""
-      }), mutationOptions);\n\n`;
+        needARequestBodyComponent ? "body" : "{}"
+      }, ${queryParams ? "{params}" : "{}"}), mutationOptions);\n\n`;
     }
   }
 
