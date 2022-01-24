@@ -491,8 +491,13 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
   }
 `;
 
+  if (Component === "Get") {
+  }
+
   if (!skipReact) {
     const encode = pathParametersEncodingMode ? "encode" : "";
+
+    output += description + "\n";
 
     const path = paramsInPath.length ? `${encode}\`${route.replace(/\$\{/g, "${")}\`` : `${encode}\`${route}\``;
 
@@ -501,17 +506,15 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
   ${paramsTypes ? `${paramsTypes};\n\t` : ""} ${queryParamsType ? `params: ${componentName}QueryParams;\n\t` : ""} ${
       needARequestBodyComponent ? `body: ${componentName}RequestBody;\n\t` : ""
     }${verb === "get" ? "queryOptions?: QueryOptions" : "mutationOptions?: MutationOptions"};
-}`;
-
-    output += description + "\n";
+  } \n\n`;
 
     if (verb === "get") {
       output += `export const use${componentName} = (${
         paramsInPath.length ? `{${paramsInPath.join(", ")}, queryOptions}` : "queryOptions"
-      }: Use${componentName}Props) => useQuery<${responseType}>(${path}, () => axios.${verb}(${path}), queryOptions);`;
+      }: Use${componentName}Props) => useQuery<${responseType}>(${path}, () => axios.${verb}(${path}), queryOptions);\n\n`;
 
-      output += `export const useInvalidate${componentName} = (${paramsTypes}) => useInvalidateQuery(${path}, "invalidate${componentName}");`;
-      output += `export const ${Component}${componentName} = (props: QueryProps<${responseType}>) => <Query<${responseType}> path="${path}" {...props}/>`;
+      output += `export const useInvalidate${componentName} = (${paramsTypes}) => useInvalidateQuery(${path}, "invalidate${componentName}");\n\n`;
+      // output += `export const ${Component}${componentName} = (props: QueryProps<${responseType}>) => <Query<${responseType}> path={${path}} {...props}/>\n\n`;
     } else {
       output += `export const use${componentName} = (${
         paramsInPath.length || needARequestBodyComponent
@@ -521,7 +524,7 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
           : "mutationOptions"
       }: Use${componentName}Props) => useMutation<${responseType}>(${path}, () => axios.${verb}(${path}, ${
         needARequestBodyComponent ? "body" : ""
-      }), mutationOptions);`;
+      }), mutationOptions);\n\n`;
     }
   }
 
@@ -824,7 +827,8 @@ const importOpenApi = async ({
 
   let output = "";
 
-  output += addVersionMetadata(specs.info.version);
+  console.log(addVersionMetadata(specs.info.version));
+  // output += addVersionMetadata(specs.info.version);
   output += addCommonComponentsAndHooks();
   output += generateSchemasDefinition(specs.components && specs.components.schemas);
   output += generateRequestBodiesDefinition(specs.components && specs.components.requestBodies);

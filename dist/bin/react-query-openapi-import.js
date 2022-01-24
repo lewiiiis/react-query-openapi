@@ -289,7 +289,6 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
         route = route.replace(lastParamInTheRouteRegExp, ""); // `/pet/${id}` => `/pet`
     }
     var componentName = _case.pascal(operation.operationId);
-    var Component = verb === "get" ? "Get" : "Mutate";
     var isOk = function (_a) {
         var _b = tslib.__read(_a, 1), statusCode = _b[0];
         return statusCode.toString().startsWith("2");
@@ -404,19 +403,19 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
         : "") + "\n";
     if (!skipReact) {
         var encode = pathParametersEncodingMode ? "encode" : "";
+        output += description + "\n";
         var path = paramsInPath.length ? encode + "`" + route.replace(/\$\{/g, "${") + "`" : encode + "`" + route + "`";
         // Custom Hooks
-        output += "export interface Use" + componentName + "Props {\n  " + (paramsTypes ? paramsTypes + ";\n\t" : "") + " " + (queryParamsType ? "params: " + componentName + "QueryParams;\n\t" : "") + " " + (needARequestBodyComponent ? "body: " + componentName + "RequestBody;\n\t" : "") + (verb === "get" ? "queryOptions?: QueryOptions" : "mutationOptions?: MutationOptions") + ";\n}";
-        output += description + "\n";
+        output += "export interface Use" + componentName + "Props {\n  " + (paramsTypes ? paramsTypes + ";\n\t" : "") + " " + (queryParamsType ? "params: " + componentName + "QueryParams;\n\t" : "") + " " + (needARequestBodyComponent ? "body: " + componentName + "RequestBody;\n\t" : "") + (verb === "get" ? "queryOptions?: QueryOptions" : "mutationOptions?: MutationOptions") + ";\n  } \n\n";
         if (verb === "get") {
-            output += "export const use" + componentName + " = (" + (paramsInPath.length ? "{" + paramsInPath.join(", ") + ", queryOptions}" : "queryOptions") + ": Use" + componentName + "Props) => useQuery<" + responseType + ">(" + path + ", () => axios." + verb + "(" + path + "), queryOptions);";
-            output += "export const useInvalidate" + componentName + " = (" + paramsTypes + ") => useInvalidateQuery(" + path + ", \"invalidate" + componentName + "\");";
-            output += "export const " + Component + componentName + " = (props: QueryProps<" + responseType + ">) => <Query<" + responseType + "> path=\"" + path + "\" {...props}/>";
+            output += "export const use" + componentName + " = (" + (paramsInPath.length ? "{" + paramsInPath.join(", ") + ", queryOptions}" : "queryOptions") + ": Use" + componentName + "Props) => useQuery<" + responseType + ">(" + path + ", () => axios." + verb + "(" + path + "), queryOptions);\n\n";
+            output += "export const useInvalidate" + componentName + " = (" + paramsTypes + ") => useInvalidateQuery(" + path + ", \"invalidate" + componentName + "\");\n\n";
+            // output += `export const ${Component}${componentName} = (props: QueryProps<${responseType}>) => <Query<${responseType}> path={${path}} {...props}/>\n\n`;
         }
         else {
             output += "export const use" + componentName + " = (" + (paramsInPath.length || needARequestBodyComponent
                 ? "{" + (paramsInPath.length === 1 ? paramsInPath + "," : paramsInPath.join(", ")) + " " + (needARequestBodyComponent ? "body," : "") + " mutationOptions}"
-                : "mutationOptions") + ": Use" + componentName + "Props) => useMutation<" + responseType + ">(" + path + ", () => axios." + verb + "(" + path + ", " + (needARequestBodyComponent ? "body" : "") + "), mutationOptions);";
+                : "mutationOptions") + ": Use" + componentName + "Props) => useMutation<" + responseType + ">(" + path + ", () => axios." + verb + "(" + path + ", " + (needARequestBodyComponent ? "body" : "") + "), mutationOptions);\n\n";
         }
     }
     // Custom version
@@ -668,7 +667,8 @@ var importOpenApi = function (_a) {
                 case 3:
                     resolveDiscriminator(specs);
                     output = "";
-                    output += addVersionMetadata(specs.info.version);
+                    console.log(addVersionMetadata(specs.info.version));
+                    // output += addVersionMetadata(specs.info.version);
                     output += addCommonComponentsAndHooks();
                     output += generateSchemasDefinition(specs.components && specs.components.schemas);
                     output += generateRequestBodiesDefinition(specs.components && specs.components.requestBodies);
