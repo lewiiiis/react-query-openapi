@@ -331,7 +331,7 @@ export const generateRestfulComponent = (
     lastParamInTheRoute = (route.match(lastParamInTheRouteRegExp) || [])[1];
     route = route.replace(lastParamInTheRouteRegExp, ""); // `/pet/${id}` => `/pet`
   }
-  const componentName = pascal(operation.operationId!);
+  const componentName = pascal(operation.operationId!).replace("Controller", "");
   const Component = verb === "get" ? "Get" : "Mutate";
 
   const isOk = ([statusCode]: [string, ResponseObject | ReferenceObject]) => statusCode.toString().startsWith("2");

@@ -288,7 +288,7 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
         lastParamInTheRoute = (route.match(lastParamInTheRouteRegExp) || [])[1];
         route = route.replace(lastParamInTheRouteRegExp, ""); // `/pet/${id}` => `/pet`
     }
-    var componentName = _case.pascal(operation.operationId);
+    var componentName = _case.pascal(operation.operationId).replace("Controller", "");
     var isOk = function (_a) {
         var _b = tslib.__read(_a, 1), statusCode = _b[0];
         return statusCode.toString().startsWith("2");
