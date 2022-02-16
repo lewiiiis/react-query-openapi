@@ -517,7 +517,9 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
           : "{queryOptions}"
       }: Use${componentName}Props) => useQuery<${responseType}>(${path}${
         queryParamsType ? " + " + "`?${Object.keys(params).map(key => `${key}=${params[key]}`).join('&')}`" : ""
-      }, () => axios.${verb}(${path} ${queryParamsType ? ",{params}" : ""}), queryOptions);\n\n`;
+      }, () => axios.${verb}(${path} ${
+        queryParamsType ? ",{params}" : ""
+      }).then(data => data.data), queryOptions);\n\n`;
 
       output += `export const useInvalidate${componentName} = (${paramsTypes}) => useInvalidateQuery(${path}, "invalidate${componentName}");\n\n`;
       // output += `export const ${Component}${componentName} = (props: QueryProps<${responseType}>) => <Query<${responseType}> path={${path}} {...props}/>\n\n`;
