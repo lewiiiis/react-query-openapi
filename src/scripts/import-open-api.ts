@@ -530,7 +530,7 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
       } ${needARequestBodyComponent ? `body: ${componentName}RequestBody;\n\t` : ""}
         } \n\n`;
 
-      output += `export const use${componentName} = (mutationOptions) => useMutation<${responseType}, any, Use${componentName}Variables>(${path.replace(
+      output += `export const use${componentName} = (mutationOptions: MutationOptions) => useMutation<${responseType}, any, Use${componentName}Variables>(${path.replace(
         /[{}$]/g,
         "",
       )}, ({${paramsInPath.length === 1 ? `${paramsInPath}` : paramsInPath.join(", ")} ${
