@@ -416,7 +416,7 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
         }
         else {
             output += "export interface Use" + componentName + "Variables {\n        " + (paramsTypes ? paramsTypes + ";\n\t" : "") + " " + (queryParamsType ? "params: " + componentName + "QueryParams;\n\t" : "") + " " + (needARequestBodyComponent ? "body: " + componentName + "RequestBody;\n\t" : "") + "\n        } \n\n";
-            output += "export const use" + componentName + " = (mutationOptions) => useMutation<" + responseType + ", any, Use" + componentName + "Variables>(" + path.replace(/[{}$]/g, "") + ", ({" + (paramsInPath.length === 1 ? "" + paramsInPath : paramsInPath.join(", ")) + " " + (needARequestBodyComponent ? (paramsInPath.length ? "," : "") + " body" : "") + " }) => axios." + verb + "(" + path + " " + (needARequestBodyComponent ? ",body" : verb !== "delete" ? ",{}" : "") + " " + (queryParamsType ? ",{params}" : ",{}") + "), mutationOptions);\n\n";
+            output += "export const use" + componentName + " = (mutationOptions: MutationOptions) => useMutation<" + responseType + ", any, Use" + componentName + "Variables>(" + path.replace(/[{}$]/g, "") + ", ({" + (paramsInPath.length === 1 ? "" + paramsInPath : paramsInPath.join(", ")) + " " + (needARequestBodyComponent ? (paramsInPath.length ? "," : "") + " body" : "") + " }) => axios." + verb + "(" + path + " " + (needARequestBodyComponent ? ",body" : verb !== "delete" ? ",{}" : "") + " " + (queryParamsType ? ",{params}" : ",{}") + "), mutationOptions);\n\n";
         }
     }
     // Custom version
