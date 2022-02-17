@@ -505,7 +505,7 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
 
     if (verb === "get") {
       output += `export interface Use${componentName}Props {
-    ${paramsTypes ? `${paramsTypes};\n\t` : ""} ${queryParamsType ? `params: ${componentName}QueryParams;\n\t` : ""} ${
+    ${paramsTypes ? `${paramsTypes};\n\t` : ""} ${queryParamsType ? `params?: ${componentName}QueryParams;\n\t` : ""} ${
         needARequestBodyComponent ? `body: ${componentName}RequestBody;\n\t` : ""
       }${verb === "get" ? "queryOptions?: QueryObserverOptions<any>" : "mutationOptions?: MutationOptions"};
     } \n\n`;
@@ -517,8 +517,10 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
           : "{queryOptions}"
       }: Use${componentName}Props) => useQuery<${responseType}>(${path}${
         queryParamsType ? " + " + "`?${Object.keys(params).map(key => `${key}=${params[key]}`).join('&')}`" : ""
-      }, () => axios.${verb}(${path} ${
-        queryParamsType ? ",{params}" : ""
+      }, (${`{${queryParamsType ? "params: _params = params," : ""} ${paramsInPath
+        .map(a => `${a}: _${a} = ${a}`)
+        .join(", ")}}`}: Use${componentName}Props) => axios.${verb}(${path.replace(/\${/g, "${_")} ${
+        queryParamsType ? ",{params: _params}" : ""
       }).then(data => data.data), { refetchOnMount: false, ...queryOptions });\n\n`;
 
       output += `export const useInvalidate${componentName} = (${paramsTypes}) => useInvalidateQuery(${path}, "invalidate${componentName}");\n\n`;
