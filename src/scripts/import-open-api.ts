@@ -524,7 +524,11 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
       }).then(data => data.data), { refetchOnMount: false, ...queryOptions });\n\n`;
 
       output += `export const useInvalidate${componentName} = (${paramsTypes}) => useInvalidateQuery(${path}, "invalidate${componentName}");\n\n`;
-      // output += `export const ${Component}${componentName} = (props: QueryProps<${responseType}>) => <Query<${responseType}> path={${path}} {...props}/>\n\n`;
+      output += `export const api${componentName} = (${`{${queryParamsType ? "params," : ""} ${paramsInPath.join(
+        ", ",
+      )}}: Omit<Use${componentName}Props, "queryOptions">`}) => axios.${verb}(${path} ${
+        queryParamsType ? ",{params}" : ""
+      }).then(data => data.data)`;
     } else {
       output += `export interface Use${componentName}Variables {
         ${paramsTypes ? `${paramsTypes};\n\t` : ""} ${
@@ -540,6 +544,14 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
       } }) => axios.${verb}(${path} ${needARequestBodyComponent ? ",body" : verb !== "delete" ? ",{}" : ""} ${
         queryParamsType ? ",{params}" : ",{}"
       }).then(data => data?.data ?? data), mutationOptions);\n\n`;
+
+      output += `export const api${componentName} = ({${
+        paramsInPath.length === 1 ? `${paramsInPath}` : paramsInPath.join(", ")
+      } ${
+        needARequestBodyComponent ? `${paramsInPath.length ? "," : ""} body` : ""
+      } }: Use${componentName}Variables) => axios.${verb}(${path} ${
+        needARequestBodyComponent ? ",body" : verb !== "delete" ? ",{}" : ""
+      } ${queryParamsType ? ",{params}" : ",{}"}).then(data => data?.data ?? data)`;
     }
   }
 

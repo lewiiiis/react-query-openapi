@@ -414,11 +414,12 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
                 .map(function (a) { return a + ": _" + a + " = " + a; })
                 .join(", ") + "}") + ") => axios." + verb + "(" + path.replace(/\${/g, "${_") + " " + (queryParamsType ? ",{params: _params}" : "") + ").then(data => data.data), { refetchOnMount: false, ...queryOptions });\n\n";
             output += "export const useInvalidate" + componentName + " = (" + paramsTypes + ") => useInvalidateQuery(" + path + ", \"invalidate" + componentName + "\");\n\n";
-            // output += `export const ${Component}${componentName} = (props: QueryProps<${responseType}>) => <Query<${responseType}> path={${path}} {...props}/>\n\n`;
+            output += "export const api" + componentName + " = (" + ("{" + (queryParamsType ? "params," : "") + " " + paramsInPath.join(", ") + "}: Omit<Use" + componentName + "Props, \"queryOptions\">") + ") => axios." + verb + "(" + path + " " + (queryParamsType ? ",{params}" : "") + ").then(data => data.data)";
         }
         else {
             output += "export interface Use" + componentName + "Variables {\n        " + (paramsTypes ? paramsTypes + ";\n\t" : "") + " " + (queryParamsType ? "params: " + componentName + "QueryParams;\n\t" : "") + " " + (needARequestBodyComponent ? "body: " + componentName + "RequestBody;\n\t" : "") + "\n        } \n\n";
             output += "export const use" + componentName + " = (mutationOptions?: MutationOptions) => useMutation<" + responseType + ", any, Use" + componentName + "Variables>(" + path.replace(/[{}$]/g, "") + ", ({" + (paramsInPath.length === 1 ? "" + paramsInPath : paramsInPath.join(", ")) + " " + (needARequestBodyComponent ? (paramsInPath.length ? "," : "") + " body" : "") + " }) => axios." + verb + "(" + path + " " + (needARequestBodyComponent ? ",body" : verb !== "delete" ? ",{}" : "") + " " + (queryParamsType ? ",{params}" : ",{}") + ").then(data => data?.data ?? data), mutationOptions);\n\n";
+            output += "export const api" + componentName + " = ({" + (paramsInPath.length === 1 ? "" + paramsInPath : paramsInPath.join(", ")) + " " + (needARequestBodyComponent ? (paramsInPath.length ? "," : "") + " body" : "") + " }: Use" + componentName + "Variables) => axios." + verb + "(" + path + " " + (needARequestBodyComponent ? ",body" : verb !== "delete" ? ",{}" : "") + " " + (queryParamsType ? ",{params}" : ",{}") + ").then(data => data?.data ?? data)";
         }
     }
     // Custom version
