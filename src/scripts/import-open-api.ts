@@ -502,13 +502,13 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
     const path = paramsInPath.length ? `${encode}\`${route.replace(/\$\{/g, "${")}\`` : `${encode}\`${route}\``;
 
     // Custom Hooks
-    output += `export interface Use${componentName}Props {
-  ${paramsTypes ? `${paramsTypes};\n\t` : ""} ${queryParamsType ? `params: ${componentName}QueryParams;\n\t` : ""} ${
-      needARequestBodyComponent ? `body: ${componentName}RequestBody;\n\t` : ""
-    }${verb === "get" ? "queryOptions?: QueryOptions<any>" : "mutationOptions?: MutationOptions"};
-  } \n\n`;
 
     if (verb === "get") {
+      output += `export interface Use${componentName}Props {
+    ${paramsTypes ? `${paramsTypes};\n\t` : ""} ${queryParamsType ? `params: ${componentName}QueryParams;\n\t` : ""} ${
+        needARequestBodyComponent ? `body: ${componentName}RequestBody;\n\t` : ""
+      }${verb === "get" ? "queryOptions?: QueryObserverOptions<any>" : "mutationOptions?: MutationOptions"};
+    } \n\n`;
       output += `export const use${componentName} = (${
         paramsInPath.length || queryParamsType
           ? `{${queryParamsType ? "params," : ""} ${
@@ -519,20 +519,25 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
         queryParamsType ? " + " + "`?${Object.keys(params).map(key => `${key}=${params[key]}`).join('&')}`" : ""
       }, () => axios.${verb}(${path} ${
         queryParamsType ? ",{params}" : ""
-      }).then(data => data.data), queryOptions);\n\n`;
+      }).then(data => data.data), { refetchOnMount: false, ...queryOptions });\n\n`;
 
       output += `export const useInvalidate${componentName} = (${paramsTypes}) => useInvalidateQuery(${path}, "invalidate${componentName}");\n\n`;
       // output += `export const ${Component}${componentName} = (props: QueryProps<${responseType}>) => <Query<${responseType}> path={${path}} {...props}/>\n\n`;
     } else {
-      output += `export const use${componentName} = (${
-        paramsInPath.length || needARequestBodyComponent || queryParamsType
-          ? `{${queryParamsType ? "params," : ""} ${
-              paramsInPath.length === 1 ? `${paramsInPath},` : paramsInPath.join(", ")
-            } ${needARequestBodyComponent ? "body," : ""} mutationOptions}`
-          : "{mutationOptions}"
-      }: Use${componentName}Props) => useMutation<${responseType}>(${path}, () => axios.${verb}(${path} ${
-        needARequestBodyComponent ? ",body" : verb !== "delete" ? ",{}" : ""
-      } ${queryParamsType ? ",{params}" : ",{}"}), mutationOptions);\n\n`;
+      output += `export interface Use${componentName}Variables {
+        ${paramsTypes ? `${paramsTypes};\n\t` : ""} ${
+        queryParamsType ? `params: ${componentName}QueryParams;\n\t` : ""
+      } ${needARequestBodyComponent ? `body: ${componentName}RequestBody;\n\t` : ""}
+        } \n\n`;
+
+      output += `export const use${componentName} = (mutationOptions) => useMutation<${responseType}, any, Use${componentName}Variables>(${path.replace(
+        /[{}$]/g,
+        "",
+      )}, ({${paramsInPath.length === 1 ? `${paramsInPath}` : paramsInPath.join(", ")} ${
+        needARequestBodyComponent ? `${paramsInPath.length ? "," : ""} body` : ""
+      } }) => axios.${verb}(${path} ${needARequestBodyComponent ? ",body" : verb !== "delete" ? ",{}" : ""} ${
+        queryParamsType ? ",{params}" : ",{}"
+      }), mutationOptions);\n\n`;
     }
   }
 
@@ -868,7 +873,7 @@ const importOpenApi = async ({
 
   if (!skipReact) {
     outputHeaders += `import React from "react";
-import { QueryObserverResult, useQuery, useMutation, useQueryClient, QueryOptions, MutationOptions } from "react-query";
+import { QueryObserverResult, useQuery, useMutation, useQueryClient, QueryObserverOptions, MutationOptions } from "react-query";
 import axios from "axios";
 `;
   }
