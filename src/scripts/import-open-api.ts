@@ -526,7 +526,7 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
       output += `export const useInvalidate${componentName} = (${paramsTypes}) => useInvalidateQuery(${path}, "invalidate${componentName}");\n\n`;
       output += `export const api${componentName} = (${`{${queryParamsType ? "params," : ""} ${paramsInPath.join(
         ", ",
-      )}}: Omit<Use${componentName}Props, "queryOptions">`}) => axios.${verb}(${path} ${
+      )}}: Omit<Use${componentName}Props, "queryOptions">`}) => axios.${verb}<${responseType}>(${path} ${
         queryParamsType ? ",{params}" : ""
       }).then(data => data.data)`;
     } else {
@@ -549,7 +549,7 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
         paramsInPath.length === 1 ? `${paramsInPath}` : paramsInPath.join(", ")
       } ${
         needARequestBodyComponent ? `${paramsInPath.length ? "," : ""} body` : ""
-      } }: Use${componentName}Variables) => axios.${verb}(${path} ${
+      } }: Use${componentName}Variables) => axios.${verb}<${responseType}>(${path} ${
         needARequestBodyComponent ? ",body" : verb !== "delete" ? ",{}" : ""
       } ${queryParamsType ? ",{params}" : ",{}"}).then(data => data?.data ?? data)`;
     }
