@@ -537,7 +537,7 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
         needARequestBodyComponent ? `${paramsInPath.length ? "," : ""} body` : ""
       } }) => axios.${verb}(${path} ${needARequestBodyComponent ? ",body" : verb !== "delete" ? ",{}" : ""} ${
         queryParamsType ? ",{params}" : ",{}"
-      }), mutationOptions);\n\n`;
+      }).then(data => data?.data ?? data), mutationOptions);\n\n`;
     }
   }
 
