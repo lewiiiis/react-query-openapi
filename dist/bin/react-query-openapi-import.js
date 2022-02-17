@@ -412,7 +412,7 @@ var generateRestfulComponent = function (operation, verb, route, operationIds, p
                 ? "{" + (queryParamsType ? "params," : "") + " " + (paramsInPath.length === 1 ? paramsInPath + "," : paramsInPath.join(", ")) + " queryOptions}"
                 : "{queryOptions}") + ": Use" + componentName + "Props) => useQuery<" + responseType + ">(" + path + (queryParamsType ? " + " + "`?${Object.keys(params).map(key => `${key}=${params[key]}`).join('&')}`" : "") + ", (" + ("{" + (queryParamsType ? "params: _params = params," : "") + " " + paramsInPath
                 .map(function (a) { return a + ": _" + a + " = " + a; })
-                .join(", ") + "}") + ": Use" + componentName + "Props) => axios." + verb + "(" + path.replace(/\${/g, "${_") + " " + (queryParamsType ? ",{params: _params}" : "") + ").then(data => data.data), { refetchOnMount: false, ...queryOptions });\n\n";
+                .join(", ") + "}") + ") => axios." + verb + "(" + path.replace(/\${/g, "${_") + " " + (queryParamsType ? ",{params: _params}" : "") + ").then(data => data.data), { refetchOnMount: false, ...queryOptions });\n\n";
             output += "export const useInvalidate" + componentName + " = (" + paramsTypes + ") => useInvalidateQuery(" + path + ", \"invalidate" + componentName + "\");\n\n";
             // output += `export const ${Component}${componentName} = (props: QueryProps<${responseType}>) => <Query<${responseType}> path={${path}} {...props}/>\n\n`;
         }

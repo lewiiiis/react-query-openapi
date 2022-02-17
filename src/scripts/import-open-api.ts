@@ -519,7 +519,7 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
         queryParamsType ? " + " + "`?${Object.keys(params).map(key => `${key}=${params[key]}`).join('&')}`" : ""
       }, (${`{${queryParamsType ? "params: _params = params," : ""} ${paramsInPath
         .map(a => `${a}: _${a} = ${a}`)
-        .join(", ")}}`}: Use${componentName}Props) => axios.${verb}(${path.replace(/\${/g, "${_")} ${
+        .join(", ")}}`}) => axios.${verb}(${path.replace(/\${/g, "${_")} ${
         queryParamsType ? ",{params: _params}" : ""
       }).then(data => data.data), { refetchOnMount: false, ...queryOptions });\n\n`;
 
