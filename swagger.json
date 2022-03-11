@@ -243,7 +243,7 @@
         "properties": { "data": { "$ref": "#/components/schemas/Address" } },
         "required": ["data"]
       },
-      "AgreeToServiceTermsResponse": {
+      "OkResponse": {
         "type": "object",
         "properties": { "data": { "type": "string", "example": "OK" } },
         "required": ["data"]
@@ -330,7 +330,7 @@
           "channelId": { "type": "string", "description": "채팅 채널 ID", "example": "1466-4090-FLEA-15551" },
           "buyerId": { "type": "number", "description": "구매자 ID", "example": 1466 },
           "sellerId": { "type": "number", "description": "판매자 ID", "example": 4090 },
-          "articleId": { "type": "number", "description": "중고거래 상품 ID", "example": 15551 },
+          "articleId": { "type": "number", "description": "중고거래 게시글 ID", "example": 15551 },
           "deliveryFee": { "type": "number", "description": "배달료", "example": 3000 },
           "buyerAddressId": { "type": "number", "description": "구매자 주소 ID", "example": 426 }
         },
@@ -391,10 +391,25 @@
           "channelId": { "type": "string", "description": "채팅 채널 ID", "example": "1466-4090-FLEA-15551" },
           "buyerId": { "type": "number", "description": "구매자 ID", "example": 1466 },
           "sellerId": { "type": "number", "description": "판매자 ID", "example": 4090 },
-          "articleId": { "type": "number", "description": "중고거래 상품 ID", "example": 15551 },
+          "articleId": { "type": "number", "description": "중고거래 게시글 ID", "example": 15551 },
           "sellerAddressId": { "type": "number", "description": "판매자 주소 ID", "example": 424 }
         },
         "required": ["channelId", "buyerId", "sellerId", "articleId", "sellerAddressId"]
+      },
+      "SendSuggestChatFromChatroomDTO": {
+        "type": "object",
+        "properties": {
+          "buyerId": { "type": "number", "description": "구매자 ID", "example": 1466 },
+          "sellerId": { "type": "number", "description": "판매자 ID", "example": 4090 },
+          "articleId": { "type": "number", "description": "중고거래 게시글 ID", "example": 15551 },
+          "channelId": { "type": "string", "description": "채팅 채널 ID", "example": "1466-4090-FLEA-15551" }
+        },
+        "required": ["buyerId", "sellerId", "articleId", "channelId"]
+      },
+      "SendSuggestChatFromArticleDTO": {
+        "type": "object",
+        "properties": { "articleId": { "type": "number", "description": "중고거래 게시글 ID", "example": 15551 } },
+        "required": ["articleId"]
       },
       "RegionProp": {
         "type": "object",
@@ -543,7 +558,7 @@
             ],
             "example": "ASSIGNED"
           },
-          "updatedAt": { "type": "string", "description": "일시", "example": "2022-02-15T07:37:15.471Z" },
+          "updatedAt": { "type": "string", "description": "일시", "example": "2022-03-10T07:15:23.452Z" },
           "updated": { "type": "object", "description": "세부 사항" }
         },
         "required": ["deliveryId", "state", "updatedAt", "updated"]
@@ -717,11 +732,6 @@
           "message": { "type": "string", "example": "Not Found" }
         },
         "required": ["statusCode", "message"]
-      },
-      "DeleteOperationStopResponse": {
-        "type": "object",
-        "properties": { "data": { "type": "string", "example": "OK" } },
-        "required": ["data"]
       }
     }
   },
@@ -911,9 +921,7 @@
         "responses": {
           "201": {
             "description": "",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/AgreeToServiceTermsResponse" } }
-            }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OkResponse" } } }
           }
         },
         "tags": ["Services/Bundle (합배송 서비스)"]
@@ -925,9 +933,7 @@
         "responses": {
           "200": {
             "description": "",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/AgreeToServiceTermsResponse" } }
-            }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OkResponse" } } }
           }
         },
         "tags": ["Services/Bundle (합배송 서비스)"]
@@ -1012,12 +1018,57 @@
         "tags": ["Services/Bundle (합배송 서비스)"]
       }
     },
+    "/api/v2/services/bundle/chat/suggest/via/chatroom": {
+      "post": {
+        "operationId": "BundleControllerV2_sendSuggestChatMessageViaChatroom",
+        "summary": "상대방 유저에게 당근배송 제안 채팅 보내기 (채팅방에서)",
+        "parameters": [{ "name": "x-auth-token", "in": "header", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/SendSuggestChatFromChatroomDTO" } }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OkResponse" } } }
+          }
+        },
+        "tags": ["Services/Bundle (합배송 서비스)"]
+      }
+    },
+    "/api/v2/services/bundle/chat/suggest/via/article": {
+      "post": {
+        "operationId": "BundleControllerV2_sendSuggestChatMessageViaArticle",
+        "summary": "상대방 유저에게 당근배송 제안 채팅 보내기 (앱 중고거래 게시글 상세에서)",
+        "parameters": [{ "name": "x-auth-token", "in": "header", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/SendSuggestChatFromArticleDTO" } }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OkResponse" } } }
+          }
+        },
+        "tags": ["Services/Bundle (합배송 서비스)"]
+      }
+    },
     "/api/v2/services/bundle/items/my": {
       "delete": {
         "operationId": "BundleControllerV2_deleteAllOfMyItems",
         "summary": "현재 사용자의 모든 배송물품 삭제 (알파 개발용)",
         "parameters": [{ "name": "x-auth-token", "in": "header", "required": true, "schema": { "type": "string" } }],
-        "responses": { "200": { "description": "" } },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OkResponse" } } }
+          }
+        },
         "tags": ["Services/Bundle (합배송 서비스)"]
       }
     },
@@ -1129,11 +1180,31 @@
         "tags": ["배송"]
       }
     },
-    "/dev/v1/items/{itemId}/cancel": {
+    "/dev/v1/items/{itemId}/status": {
       "post": {
-        "operationId": "DevController_forceCancelItem",
-        "summary": "아이템 상태값에 상관없이 강제 취소",
-        "parameters": [{ "name": "itemId", "required": true, "in": "path", "schema": { "type": "number" } }],
+        "operationId": "DevController_moveItemStatus",
+        "summary": "아이템 상태값 변경",
+        "parameters": [
+          { "name": "itemId", "required": true, "in": "path", "schema": { "type": "number" } },
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "description": "상태값 목록",
+            "schema": {
+              "enum": [
+                "CANCEL",
+                "PAYMENT_PENDING",
+                "ASSIGNMENT_PENDING",
+                "ASSIGNED",
+                "PICKUP_ING",
+                "DELIVERY_ING",
+                "DELIVERY_DONE"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": "",
@@ -1641,9 +1712,7 @@
         "responses": {
           "200": {
             "description": "Success",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/DeleteOperationStopResponse" } }
-            }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OkResponse" } } }
           },
           "404": {
             "description": "Not Found Error",

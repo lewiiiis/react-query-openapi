@@ -539,16 +539,16 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
       output += `export const use${componentName} = (mutationOptions?: MutationOptions) => useMutation<${responseType}, any, Use${componentName}Variables>(${path.replace(
         /[{}$]/g,
         "",
-      )}, ({${paramsInPath.length === 1 ? `${paramsInPath}` : paramsInPath.join(", ")} ${
-        needARequestBodyComponent ? `${paramsInPath.length ? "," : ""} body` : ""
+      )}, ({${paramsInPath.length > 0 ? paramsInPath.join(", ") + "," : ""} ${queryParamsType ? "params," : ""} ${
+        needARequestBodyComponent ? "body," : ""
       } }) => axios.${verb}(${path} ${needARequestBodyComponent ? ",body" : verb !== "delete" ? ",{}" : ""} ${
         queryParamsType ? ",{params}" : ",{}"
       }).then(data => data?.data ?? data), mutationOptions);\n\n`;
 
-      output += `export const api${componentName} = ({${
-        paramsInPath.length === 1 ? `${paramsInPath}` : paramsInPath.join(", ")
+      output += `export const api${componentName} = ({${paramsInPath.length > 0 ? paramsInPath.join(", ") + "," : ""} ${
+        queryParamsType ? "params," : ""
       } ${
-        needARequestBodyComponent ? `${paramsInPath.length ? "," : ""} body` : ""
+        needARequestBodyComponent ? "body," : ""
       } }: Use${componentName}Variables) => axios.${verb}<${responseType}>(${path} ${
         needARequestBodyComponent ? ",body" : verb !== "delete" ? ",{}" : ""
       } ${queryParamsType ? ",{params}" : ",{}"}).then(data => data?.data ?? data)`;
