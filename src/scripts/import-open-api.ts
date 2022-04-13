@@ -521,14 +521,14 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
         .map(a => `${a}: _${a} = ${a}`)
         .join(", ")}}`}) => axios.${verb}(${path.replace(/\${/g, "${_")} ${
         queryParamsType ? ",{params: _params}" : ""
-      }).then(data => data?.data ?? data), { refetchOnMount: false, ...queryOptions });\n\n`;
+      }), { refetchOnMount: false, ...queryOptions });\n\n`;
 
       output += `export const useInvalidate${componentName} = (${paramsTypes}) => useInvalidateQuery(${path}, "invalidate${componentName}");\n\n`;
       output += `export const api${componentName} = (${`{${queryParamsType ? "params," : ""} ${paramsInPath.join(
         ", ",
       )}}: Omit<Use${componentName}Props, "queryOptions">`}) => axios.${verb}<${responseType}>(${path} ${
         queryParamsType ? ",{params}" : ""
-      }).then(data => data?.data ?? data)`;
+      })`;
     } else {
       output += `export interface Use${componentName}Variables {
         ${paramsTypes ? `${paramsTypes};\n\t` : ""} ${
@@ -543,7 +543,7 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
         needARequestBodyComponent ? "body," : ""
       } }) => axios.${verb}(${path} ${needARequestBodyComponent ? ",body" : verb !== "delete" ? ",{}" : ""} ${
         queryParamsType ? ",{params}" : ",{}"
-      }).then(data => data?.data ?? data), mutationOptions);\n\n`;
+      }), mutationOptions);\n\n`;
 
       output += `export const api${componentName} = ({${paramsInPath.length > 0 ? paramsInPath.join(", ") + "," : ""} ${
         queryParamsType ? "params," : ""
@@ -551,7 +551,7 @@ export ${`type ${componentName}RequestBody = ${requestBodyTypes}`}`
         needARequestBodyComponent ? "body," : ""
       } }: Use${componentName}Variables) => axios.${verb}<${responseType}>(${path} ${
         needARequestBodyComponent ? ",body" : verb !== "delete" ? ",{}" : ""
-      } ${queryParamsType ? ",{params}" : ",{}"}).then(data => data?.data ?? data)`;
+      } ${queryParamsType ? ",{params}" : ",{}"})`;
     }
   }
 
